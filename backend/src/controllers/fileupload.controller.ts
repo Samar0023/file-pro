@@ -121,6 +121,7 @@ export  const deletefiles = asyncHandler(async (req:Request<FileParams> , res:Re
 
          res.status(200).json({
             success: true,
+            message:"file deleted Successfully"
         })
             return 
 

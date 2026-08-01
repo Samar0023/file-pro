@@ -2,8 +2,10 @@ import app from "./app";
 const PORT = process.env.PORT || 3000;
 import uploadRoute from "./route/file.route"
 import sharpRoutes from "./route/sharp.route"
+import pdfRoutes from "./route/pdf.route"
 app.use("/api/files" , uploadRoute)
 app.use("/api/custom" , sharpRoutes)
+app.use("/api/pdf" , pdfRoutes)
 
 app.listen(PORT , ()=>{
       console.log(`Live Backend on ${PORT}`);
