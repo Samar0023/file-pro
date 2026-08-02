@@ -18,4 +18,13 @@ model File {
   size         Int
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  shareLinks ShareLink[]
+}
+
+model ShareLink {
+  id          String    @id @default(cuid())
+  token       String    @unique
+  fileId      String
+  createdAt   DateTime  @default(now())
+  file File @relation (fields: [fileId] , references: [id])
 }

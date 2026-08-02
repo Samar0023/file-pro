@@ -1,9 +1,8 @@
-import { PDFDocument } from "pdf-lib";
+import { PDFDocument , } from "pdf-lib";
 import path from "path";
 import { pdfname } from "../utils/pdf.util";
 import {File} from "@prisma/client"
 import fs from "fs"
-import { error } from "console";
 
 export const createPdf = async (files:File[],
               outputPath:string
@@ -23,7 +22,7 @@ export const createPdf = async (files:File[],
           else{
             throw new Error("Unsupported Image format")
           }
-         addedpage = await pdfDoc.embedJpg(readimg);
+         
 
         const pages =  pdfDoc.addPage([
             addedpage.width,
@@ -43,3 +42,65 @@ export const createPdf = async (files:File[],
     fs.writeFileSync(outputPath,Savedpdf)
 
 }
+
+export const mergePdf = async (files:File[] , outputPath:string) =>{
+  const finalPdf = await PDFDocument.create()
+
+    
+     for(const file of files){
+      const readpdf = fs.readFileSync(file.filePath)
+    const ext = path.extname(file.fileName).toLowerCase();
+      let addedpdf  
+       if(ext === ".pdf"){
+       addedpdf =  await  PDFDocument.load(readpdf)
+       }
+        else{
+            throw new Error("Unsupported  format")
+          }
+
+          const addedpage = await finalPdf.copyPages(addedpdf , addedpdf.getPageIndices() )
+
+         addedpage.forEach((addedpage)=>{
+           finalPdf.addPage(addedpage);
+         })
+     } 
+     const Savednewpdf = await finalPdf.save()
+
+     fs.writeFileSync(outputPath , Savednewpdf)
+}
+
+export const splitPdf = async (files:File , outputPath:string) =>{
+  const readpdf = fs.readFileSync(files.filePath)
+
+  const ext = path.extname(files.fileName).toLowerCase();
+
+          let splitpage;
+
+           if(ext === ".pdf"){
+       splitpage =  await  PDFDocument.load(readpdf)
+       }
+        else{
+            throw new Error("Unsupported  format")
+          }
+
+          const totalpages = splitpage.getPageCount()
+
+          for(let i = 0 ; i < totalpages ; i++ ){
+            const newpdf = await PDFDocument.create()
+
+            const [page] =  await newpdf.copyPages(splitpage , [i])
+
+             newpdf.addPage(page)
+
+             const Savedpdf =  await newpdf.save();
+                   fs.writeFileSync(outputPath , Savedpdf)
+          }
+
+          
+       
+
+    
+
+        }
+
+          
