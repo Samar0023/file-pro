@@ -13,7 +13,8 @@ model File {
   description  String
   OriginalName String
   fileName     String
-  filePath     String
+  fileUrl      String?
+  publicId     String?
   mimeType     String
   size         Int
   createdAt    DateTime @default(now())

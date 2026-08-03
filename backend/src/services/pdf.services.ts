@@ -1,23 +1,21 @@
 import { PDFDocument , } from "pdf-lib";
 import path from "path";
-import { pdfname } from "../utils/pdf.util";
+import { getCloudinaryBuffer } from "./cloudinary.service";
 import {File} from "@prisma/client"
 import fs from "fs"
 
-export const createPdf = async (files:File[],
-              outputPath:string
-)=>{
+export const createPdf = async (files:File[])=>{
     const pdfDoc = await PDFDocument.create();
     for(const file of files){
-        const readimg = fs.readFileSync(file.filePath);
+       const Imagebuffer = await getCloudinaryBuffer(file.fileUrl!)
 
           let addedpage;
   const ext = path.extname(file.fileName).toLowerCase();
           if(ext === ".jpg" || ext === ".jpeg"){
-            addedpage = await pdfDoc.embedJpg(readimg)
+            addedpage = await pdfDoc.embedJpg(Imagebuffer)
           }
           else if( ext === ".png"){
-            addedpage = await pdfDoc.embedPng(readimg)
+            addedpage = await pdfDoc.embedPng(Imagebuffer)
           }
           else{
             throw new Error("Unsupported Image format")
@@ -39,20 +37,20 @@ export const createPdf = async (files:File[],
 
     const Savedpdf =  await pdfDoc.save();
 
-    fs.writeFileSync(outputPath,Savedpdf)
+    return Savedpdf
 
 }
 
-export const mergePdf = async (files:File[] , outputPath:string) =>{
+export const mergePdf = async (files:File[] ) =>{
   const finalPdf = await PDFDocument.create()
 
     
      for(const file of files){
-      const readpdf = fs.readFileSync(file.filePath)
+      const Imagebuffer = await getCloudinaryBuffer(file.fileUrl!)
     const ext = path.extname(file.fileName).toLowerCase();
       let addedpdf  
        if(ext === ".pdf"){
-       addedpdf =  await  PDFDocument.load(readpdf)
+       addedpdf =  await  PDFDocument.load(Imagebuffer)
        }
         else{
             throw new Error("Unsupported  format")
@@ -66,24 +64,26 @@ export const mergePdf = async (files:File[] , outputPath:string) =>{
      } 
      const Savednewpdf = await finalPdf.save()
 
-     fs.writeFileSync(outputPath , Savednewpdf)
+    return Savednewpdf
 }
 
-export const splitPdf = async (files:File , outputPath:string) =>{
-  const readpdf = fs.readFileSync(files.filePath)
+export const splitPdf = async (files:File ) =>{
+ const pdfbuffer = await getCloudinaryBuffer(files.fileUrl!)
 
   const ext = path.extname(files.fileName).toLowerCase();
 
           let splitpage;
 
            if(ext === ".pdf"){
-       splitpage =  await  PDFDocument.load(readpdf)
+       splitpage =  await  PDFDocument.load(pdfbuffer)
        }
         else{
             throw new Error("Unsupported  format")
           }
 
           const totalpages = splitpage.getPageCount()
+
+          const splitPdfs:Uint8Array<ArrayBufferLike>[] = []
 
           for(let i = 0 ; i < totalpages ; i++ ){
             const newpdf = await PDFDocument.create()
@@ -93,8 +93,10 @@ export const splitPdf = async (files:File , outputPath:string) =>{
              newpdf.addPage(page)
 
              const Savedpdf =  await newpdf.save();
-                   fs.writeFileSync(outputPath , Savedpdf)
+                 splitPdfs.push(Savedpdf)
           }
+
+          return splitPdfs
 
           
        

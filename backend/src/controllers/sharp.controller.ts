@@ -2,6 +2,7 @@ import expressAsyncHandler from "express-async-handler";
 import { Request , Response } from "express";
 import { resizeImage, blurImage , compositeImage , rotateImage , grayscaleImage , cropImage} from "../services/sharp.services";
 import { prisma } from "../config/prisma";
+import { uploadcloudinary , getCloudinaryBuffer } from "../services/cloudinary.service";
 
 type FileParams = {
     id:string,
@@ -24,7 +25,27 @@ export const  resizeImagex  = expressAsyncHandler(async(req:Request<FileParams> 
         return
     }
 
-    await resizeImage(file.filePath , file.fileName )
+    const Imagebuffer = await getCloudinaryBuffer(file.fileUrl!)
+
+   const processedPath =  await resizeImage(Imagebuffer , file.fileName )
+
+   const cloudinaryResult = await uploadcloudinary(
+    processedPath,
+    file.fileName
+   )
+
+     const  processedFile = await prisma.file.create({
+        data:{
+        title:`Resize ${file.title}`,
+       description:file.description,   
+        OriginalName:file.OriginalName,
+        fileName:file.fileName,
+        fileUrl:cloudinaryResult.secure_url,
+        publicId:cloudinaryResult.public_id,
+        size:file.size,
+        mimeType:"image/jpeg"
+        }
+     })
 
      res.status(200).json({
       success: true,
@@ -48,7 +69,27 @@ export const  blurImagex  = expressAsyncHandler(async(req:Request<FileParams> , 
         return
     }
 
-    await blurImage(file.filePath , file.fileName )
+        const Imagebuffer = await getCloudinaryBuffer(file.fileUrl!)
+
+   const processedPath = await blurImage(Imagebuffer, file.fileName )
+
+     const cloudinaryResult = await uploadcloudinary(
+    processedPath,
+    file.fileName
+   )
+
+     const  processedFile = await prisma.file.create({
+        data:{
+        title:`Blur ${file.title}`,
+       description:file.description,   
+        OriginalName:file.OriginalName,
+        fileName:file.fileName,
+        fileUrl:cloudinaryResult.secure_url,
+        publicId:cloudinaryResult.public_id,
+        size:file.size,
+        mimeType:"image/jpeg"
+        }
+     })
 
      res.status(200).json({
       success: true,
@@ -86,8 +127,27 @@ export const  compositeImagex  = expressAsyncHandler(async(req:Request<FileParam
         return
     }
 
+    const Imagebuffer = await getCloudinaryBuffer(file.fileUrl!)
+    const Imagebufferx = await getCloudinaryBuffer(compfile.fileUrl!)
+  const processedPath=  await compositeImage(Imagebuffer , file.fileName , Imagebufferx )
 
-    await compositeImage(file.filePath , file.fileName , compfile.filePath )
+     const cloudinaryResult = await uploadcloudinary(
+    processedPath,
+    file.fileName
+   )
+
+     const  processedFile = await prisma.file.create({
+        data:{
+        title:`Composite ${file.title}`,
+       description:file.description,   
+        OriginalName:file.OriginalName,
+        fileName:file.fileName,
+        fileUrl:cloudinaryResult.secure_url,
+        publicId:cloudinaryResult.public_id,
+        size:file.size,
+        mimeType:"image/jpeg"
+        }
+     })
 
      res.status(200).json({
       success: true,
@@ -110,8 +170,27 @@ export const  rotateImagex  = expressAsyncHandler(async(req:Request<FileParams> 
         })
         return
     }
+   const Imagebuffer = await getCloudinaryBuffer(file.fileUrl!)
+   const processedPath = await rotateImage(Imagebuffer , file.fileName )
 
-    await rotateImage(file.filePath , file.fileName )
+      const cloudinaryResult = await uploadcloudinary(
+    processedPath,
+    file.fileName
+   )
+
+     const  processedFile = await prisma.file.create({
+        data:{
+        title:`Rotate ${file.title}`,
+       description:file.description,   
+        OriginalName:file.OriginalName,
+        fileName:file.fileName,
+        fileUrl:cloudinaryResult.secure_url,
+        publicId:cloudinaryResult.public_id,
+        size:file.size,
+        mimeType:"image/jpeg"
+        }
+     })
+
 
      res.status(200).json({
       success: true,
@@ -134,8 +213,26 @@ export const  grayscaleImagex = expressAsyncHandler(async(req:Request<FileParams
         })
         return
     }
+const Imagebuffer = await getCloudinaryBuffer(file.fileUrl!)
+ const  processedPath =  await grayscaleImage(Imagebuffer , file.fileName )
 
-    await grayscaleImage(file.filePath , file.fileName )
+      const cloudinaryResult = await uploadcloudinary(
+    processedPath,
+    file.fileName
+   )
+
+     const  processedFile = await prisma.file.create({
+        data:{
+        title:`GrayscaleImage ${file.title}`,
+       description:file.description,   
+        OriginalName:file.OriginalName,
+        fileName:file.fileName,
+        fileUrl:cloudinaryResult.secure_url,
+        publicId:cloudinaryResult.public_id,
+        size:file.size,
+        mimeType:"image/jpeg"
+        }
+     })
 
      res.status(200).json({
       success: true,
@@ -158,8 +255,28 @@ export const  cropImagex = expressAsyncHandler(async(req:Request<FileParams> , r
         })
         return
     }
+const Imagebuffer = await getCloudinaryBuffer(file.fileUrl!)
+const processedPath =    await cropImage(Imagebuffer , file.fileName )
 
-    await cropImage(file.filePath , file.fileName )
+
+
+      const cloudinaryResult = await uploadcloudinary(
+    processedPath,
+    file.fileName
+   )
+
+     const  processedFile = await prisma.file.create({
+        data:{
+        title:`CropImage ${file.title}`,
+       description:file.description,   
+        OriginalName:file.OriginalName,
+        fileName:file.fileName,
+        fileUrl:cloudinaryResult.secure_url,
+        publicId:cloudinaryResult.public_id,
+        size:file.size,
+        mimeType:"image/jpeg"
+        }
+     })
 
      res.status(200).json({
       success: true,

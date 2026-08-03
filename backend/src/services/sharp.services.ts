@@ -2,46 +2,51 @@ import sharp from "sharp"
 import path from "path"
  
  
-export const resizeImage = async(filePath: string , fileName:string) =>{
+export const resizeImage = async(fileBuffer: Buffer , fileName:string) =>{
         const name = path.parse(fileName).name;
-    const processedName = `processed/${name}.jpg`
-    await sharp(filePath) 
+    const processedName = `processed/${Date.now()}-${name}.jpg`;
+    await sharp(fileBuffer) 
     .resize({width:200 , height:140}).jpeg({quality:80})
     .toFile(processedName)
+
+    return processedName
 }
 
-export const blurImage = async(filePath: string , fileName:string) =>{
+export const blurImage = async(fileBuffer:Buffer , fileName:string) =>{
        const name = path.parse(fileName).name;
-    const processedName = `processed/${name}.jpg`
+    const processedName = `processed/${Date.now()}-${name}.jpg`;
 
-    await sharp(filePath)
+    await sharp(fileBuffer)
     .blur(6)
     .toFile(processedName)
+    return processedName
 }
 
-export const rotateImage = async(filePath: string , fileName:string) =>{
+export const rotateImage = async(fileBuffer:Buffer , fileName:string) =>{
        const name = path.parse(fileName).name;
-    const processedName = `processed/${name}.jpg`
+    const processedName = `processed/${Date.now()}-${name}.jpg`;
 
-    await sharp(filePath)
+    await sharp(fileBuffer)
     .rotate(90)
     .toFile(processedName)
+    return processedName
 }
 
-export const grayscaleImage = async(filePath: string , fileName:string) =>{
+export const grayscaleImage = async(fileBuffer:Buffer, fileName:string) =>{
        const name = path.parse(fileName).name;
-    const processedName = `processed/${name}.jpg`
+    const processedName = `processed/${Date.now()}-${name}.jpg`;
 
-    await sharp(filePath)
+    await sharp(fileBuffer)
     .grayscale()
     .toFile(processedName)
+    return processedName
 }
 
-export const cropImage = async(filePath: string , fileName:string) =>{
+export const cropImage = async(fileBuffer:Buffer , fileName:string) =>{
        const name = path.parse(fileName).name;
-    const processedName = `processed/${name}.jpg`
+    const processedName =`processed/${Date.now()}-${name}.jpg`;
 
-    await sharp(filePath)
+    await sharp(fileBuffer)
     .extract({
         left:100,
         top:100,
@@ -49,17 +54,19 @@ export const cropImage = async(filePath: string , fileName:string) =>{
         height:300,
     })
     .toFile(processedName)
+    return processedName
 }
 
-export const compositeImage = async(filePath: string , fileName:string , overlayimagePath:string  ) =>{
+export const compositeImage = async(fileBuffer:Buffer, fileName:string , fileBufferimg:Buffer ) =>{
        const name = path.parse(fileName).name;
-    const processedName = `processed/${name}.jpg`
+    const processedName = `processed/${Date.now()}-${name}.jpg`;
 
-    await sharp(filePath)
+    await sharp(fileBuffer)
     .composite([{
-         input:overlayimagePath,
+         input:fileBufferimg,
          gravity:"southeast",
 }])
     .toFile(processedName)
+    return processedName
 }
 
