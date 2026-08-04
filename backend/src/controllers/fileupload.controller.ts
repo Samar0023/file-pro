@@ -130,7 +130,7 @@ export  const deletefiles = asyncHandler(async (req:Request<FileParams> , res:Re
             return 
        }
 
-    await deletecloudinary(findfile.publicId);
+    await deletecloudinary(findfile.publicId , findfile.mimeType === "application/pdf" ? "raw" : "image");
 
 
        const deletefile = await prisma.file.delete({

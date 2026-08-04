@@ -41,8 +41,11 @@ export const uploadcloudinary  = async(filePath: string | Buffer | Uint8Array , 
 
 }
 
-export const deletecloudinary  = async(public_id:string) =>{
-    const uploadcloudinaryx =   await cloudinary.uploader.destroy(public_id)
+export const deletecloudinary  = async(public_id:string , resource_type:string) =>{
+
+    const uploadcloudinaryx =   await cloudinary.uploader.destroy(public_id , {
+        resource_type,
+    })
 
       return uploadcloudinaryx 
 }

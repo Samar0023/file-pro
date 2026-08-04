@@ -5,6 +5,6 @@ const router = express.Router()
 
 router.post("/create-pdf" , createPdfx);
 router.post("/merge-pdf" , mergePdfx);
-router.post("/split-pdf" , splitPdfx)
+router.post("/split-pdf/:id" , splitPdfx)
 
 export default router
