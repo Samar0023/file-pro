@@ -58,7 +58,7 @@ export const uploadfile = asyncHandler(async (req: Request<{}, {}, RegisterBody>
   
         fileUrl: cloudinaryResult.secure_url,
         publicId: cloudinaryResult.public_id,
-
+        userId:req.user.id,
         size: file.size,
         mimeType: file.mimetype,
       }
@@ -76,7 +76,11 @@ export const uploadfile = asyncHandler(async (req: Request<{}, {}, RegisterBody>
 );
 
 export const getallfiles = asyncHandler(async (req:Request , res:Response) =>{
-         const files = await prisma.file.findMany()
+         const files = await prisma.file.findMany({
+          where:{
+            userId:req.user.id
+          }
+         })
 
          res.status(200).json({
             success:true,
@@ -97,9 +101,10 @@ export  const singlefiles = asyncHandler(async (req:Request<FileParams> , res:Re
             return 
      }
 
-       const findfile = await prisma.file.findUnique({
+       const findfile = await prisma.file.findFirst({
             where:{
                 id,
+                  userId:req.user.id
             }
        })
 
@@ -116,9 +121,10 @@ export  const deletefiles = asyncHandler(async (req:Request<FileParams> , res:Re
 
 
 
-      const findfile = await prisma.file.findUnique({
+      const findfile = await prisma.file.findFirst({
             where:{
                 id,
+                  userId:req.user.id
             }
        })
 
@@ -129,6 +135,15 @@ export  const deletefiles = asyncHandler(async (req:Request<FileParams> , res:Re
         })
             return 
        }
+
+       if(!findfile.publicId){
+   res.status(400).json({
+        success:false,
+        message:"Cloudinary id missing"
+    });
+     return 
+}
+
 
     await deletecloudinary(findfile.publicId , findfile.mimeType === "application/pdf" ? "raw" : "image");
 
@@ -152,9 +167,10 @@ export  const downloadfile = asyncHandler(async (req:Request<FileParams> , res:R
 
 
 
-      const findfile = await prisma.file.findUnique({
+      const findfile = await prisma.file.findFirst({
             where:{
                 id,
+                  userId:req.user.id
             }
        })
 

@@ -11,9 +11,10 @@ type FileParams = {
 
 export const  resizeImagex  = expressAsyncHandler(async(req:Request<FileParams> , res:Response)=>{
     const {id} = req.params
-    const file = await prisma.file.findUnique({
+    const file = await prisma.file.findFirst({
         where:{
-            id
+            id,
+            userId:req.user.id,
         }
     })
 
@@ -42,6 +43,7 @@ export const  resizeImagex  = expressAsyncHandler(async(req:Request<FileParams> 
         fileName:file.fileName,
         fileUrl:cloudinaryResult.secure_url,
         publicId:cloudinaryResult.public_id,
+        userId:req.user.id,
         size:file.size,
         mimeType:"image/jpeg"
         }
@@ -55,9 +57,10 @@ export const  resizeImagex  = expressAsyncHandler(async(req:Request<FileParams> 
 
 export const  blurImagex  = expressAsyncHandler(async(req:Request<FileParams> , res:Response)=>{
     const {id} = req.params
-    const file = await prisma.file.findUnique({
+    const file = await prisma.file.findFirst({
         where:{
-            id
+            id,
+             userId:req.user.id,
         }
     })
 
@@ -84,6 +87,7 @@ export const  blurImagex  = expressAsyncHandler(async(req:Request<FileParams> , 
        description:file.description,   
         OriginalName:file.OriginalName,
         fileName:file.fileName,
+        userId:req.user.id,
         fileUrl:cloudinaryResult.secure_url,
         publicId:cloudinaryResult.public_id,
         size:file.size,
@@ -99,9 +103,10 @@ export const  blurImagex  = expressAsyncHandler(async(req:Request<FileParams> , 
 
 export const  compositeImagex  = expressAsyncHandler(async(req:Request<FileParams> , res:Response)=>{
     const {id , oid} = req.params
-    const file = await prisma.file.findUnique({
+    const file = await prisma.file.findFirst({
         where:{
-            id
+            id,
+             userId:req.user.id,
         }
     })
 
@@ -143,6 +148,7 @@ export const  compositeImagex  = expressAsyncHandler(async(req:Request<FileParam
         OriginalName:file.OriginalName,
         fileName:file.fileName,
         fileUrl:cloudinaryResult.secure_url,
+        userId:req.user.id,
         publicId:cloudinaryResult.public_id,
         size:file.size,
         mimeType:"image/jpeg"
@@ -157,9 +163,10 @@ export const  compositeImagex  = expressAsyncHandler(async(req:Request<FileParam
 
 export const  rotateImagex  = expressAsyncHandler(async(req:Request<FileParams> , res:Response)=>{
     const {id} = req.params
-    const file = await prisma.file.findUnique({
+    const file = await prisma.file.findFirst({
         where:{
-            id
+            id,
+             userId:req.user.id,
         }
     })
 
@@ -185,6 +192,7 @@ export const  rotateImagex  = expressAsyncHandler(async(req:Request<FileParams> 
         OriginalName:file.OriginalName,
         fileName:file.fileName,
         fileUrl:cloudinaryResult.secure_url,
+        userId:req.user.id,
         publicId:cloudinaryResult.public_id,
         size:file.size,
         mimeType:"image/jpeg"
@@ -200,9 +208,10 @@ export const  rotateImagex  = expressAsyncHandler(async(req:Request<FileParams> 
 
 export const  grayscaleImagex = expressAsyncHandler(async(req:Request<FileParams> , res:Response)=>{
     const {id} = req.params
-    const file = await prisma.file.findUnique({
+    const file = await prisma.file.findFirst({
         where:{
-            id
+            id,
+             userId:req.user.id,
         }
     })
 
@@ -229,6 +238,7 @@ const Imagebuffer = await getCloudinaryBuffer(file.fileUrl!)
         fileName:file.fileName,
         fileUrl:cloudinaryResult.secure_url,
         publicId:cloudinaryResult.public_id,
+        userId:req.user.id,
         size:file.size,
         mimeType:"image/jpeg"
         }
@@ -242,9 +252,10 @@ const Imagebuffer = await getCloudinaryBuffer(file.fileUrl!)
 
 export const  cropImagex = expressAsyncHandler(async(req:Request<FileParams> , res:Response)=>{
     const {id} = req.params
-    const file = await prisma.file.findUnique({
+    const file = await prisma.file.findFirst({
         where:{
-            id
+            id,
+              userId:req.user.id,
         }
     })
 
@@ -274,6 +285,7 @@ const processedPath =    await cropImage(Imagebuffer , file.fileName )
         fileUrl:cloudinaryResult.secure_url,
         publicId:cloudinaryResult.public_id,
         size:file.size,
+        userId:req.user.id,
         mimeType:"image/jpeg"
         }
      })

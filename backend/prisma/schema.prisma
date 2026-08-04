@@ -8,7 +8,7 @@ datasource db {
 }
 
 model File {
-  id           String   @id @default(cuid())
+  id           String      @id @default(cuid())
   title        String
   description  String
   OriginalName String
@@ -17,15 +17,27 @@ model File {
   publicId     String?
   mimeType     String
   size         Int
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  shareLinks ShareLink[]
+  userId       String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  shareLinks   ShareLink[]
 }
 
 model ShareLink {
-  id          String    @id @default(cuid())
-  token       String    @unique
-  fileId      String
-  createdAt   DateTime  @default(now())
-  file File @relation (fields: [fileId] , references: [id])
+  id        String   @id @default(cuid())
+  token     String   @unique
+  fileId    String
+  createdAt DateTime @default(now())
+  file      File     @relation(fields: [fileId], references: [id])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String
+  email     String   @unique
+  password  String
+ 
+  files     File[]
+  createdAt DateTime @default(now())
 }

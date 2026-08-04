@@ -17,6 +17,7 @@ export const createPdfx = expressAsyncHandler(async (req: Request<FileParams>, r
         where: {
             id: {
                 in: fileIds,
+                
             }
         }
     })
@@ -46,6 +47,7 @@ export const createPdfx = expressAsyncHandler(async (req: Request<FileParams>, r
             fileName: pdfname,
             fileUrl: cloudinaryResult.secure_url,
             publicId: cloudinaryResult.public_id,
+            userId:req.user.id,
             size: pdfbuffer.length,
             mimeType: "application/pdf"
         }
@@ -65,8 +67,10 @@ export const mergePdfx = expressAsyncHandler(async (req: Request<FileParams>, re
     const file = await prisma.file.findMany({
         where: {
             id: {
-                in: fileIds
-            }
+                in: fileIds,
+               
+            },
+             userId:req.user.id,
         }
     })
     if (file.length === 0) {
@@ -94,6 +98,7 @@ export const mergePdfx = expressAsyncHandler(async (req: Request<FileParams>, re
             OriginalName: pdfname,
             fileName: pdfname,
             fileUrl: cloudinaryResult.secure_url,
+            userId:req.user.id,
             publicId: cloudinaryResult.public_id,
             size: pdfbuffer.length,
             mimeType: "application/pdf"
@@ -114,9 +119,10 @@ export const splitPdfx = expressAsyncHandler(async (req: Request<FileParams>, re
     const { id } = req.params
 
 
-    const file = await prisma.file.findUnique({
+    const file = await prisma.file.findFirst({
         where: {
-            id
+            id,
+             userId:req.user.id,
         }
     })
     if (!file) {
@@ -145,7 +151,7 @@ for(let i = 0 ; i < pdfbuffer.length ; i++){
 
             fileUrl:cloudinaryResult.secure_url,
             publicId:cloudinaryResult.public_id,
-
+            userId:req.user.id,
             size:pdfbuffer[i].length,
             mimeType:"application/pdf"
         }
