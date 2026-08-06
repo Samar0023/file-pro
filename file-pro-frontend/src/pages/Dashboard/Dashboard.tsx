@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Upload,
   FileText,
@@ -8,203 +7,174 @@ import {
   User,
   LogOut,
   Files,
+  Terminal,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
+const mono = { fontFamily: "'IBM Plex Mono', monospace" };
+const sans = { fontFamily: "'IBM Plex Sans', sans-serif" };
+
+
+const PAPER = "#0D1117";      
+const INK = "#F0F6FC";        
+const BLUE = "#38BDF8";       
+const STAMP = "#FF6B4A";      
+const LINE = "#21262D";       
+const CARD_BG = "#161B22";    
+
+const gridBg = {
+  backgroundImage: `linear-gradient(${LINE} 1px, transparent 1px), linear-gradient(90deg, ${LINE} 1px, transparent 1px)`,
+  backgroundSize: "40px 40px",
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
-
-  const {
-    user,
-    loading,
-    logout,
-    getProfile,
-  } = useAuth();
-
-  useEffect(() => {
-    getProfile();
-  }, []);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate("/login");
-    }
-  }, [loading, user]);
+  const { user, logout } = useAuth();
 
   const handleLogout = async () => {
     await logout();
     navigate("/login");
   };
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
-        Loading...
-      </div>
-    );
-  }
+  const navItems = [
+    {
+      to: "/upload",
+      code: "UP",
+      title: "Upload Files",
+      description: "Upload and manage document streams.",
+      icon: <Upload size={24} style={{ color: BLUE }} />,
+    },
+    {
+      to: "/files",
+      code: "DIR",
+      title: "My Files",
+      description: "Access and filter stored repository files.",
+      icon: <Files size={24} style={{ color: BLUE }} />,
+    },
+    {
+      to: "/pdf",
+      code: "PDF",
+      title: "PDF Tools",
+      description: "Merge, split, and manipulate PDF pipelines.",
+      icon: <FileText size={24} style={{ color: BLUE }} />,
+    },
+    {
+      to: "/images",
+      code: "IMG",
+      title: "Image Tools",
+      description: "Resize, crop, and optimize bitmap visuals.",
+      icon: <Image size={24} style={{ color: BLUE }} />,
+    },
+    {
+      to: "/share",
+      code: "SHR",
+      title: "Share Files",
+      description: "Generate secured share links with TTL.",
+      icon: <Share2 size={24} style={{ color: BLUE }} />,
+    },
+    {
+      to: "/profile",
+      code: "USR",
+      title: "Profile",
+      description: "Configure system credentials and access keys.",
+      icon: <User size={24} style={{ color: BLUE }} />,
+    },
+  ];
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main
+      style={{ ...sans, background: PAPER, color: INK }}
+      className="relative min-h-screen"
+    >
+      <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet"
+      />
 
-      <header className="border-b border-zinc-800">
+      <div className="pointer-events-none absolute inset-0" style={gridBg} />
 
+      {/* Top Bar */}
+      <header
+        className="sticky top-0 z-50 border-b"
+        style={{ borderColor: LINE, background: `${PAPER}e6`, backdropFilter: "blur(8px)" }}
+      >
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
+          <Link to="/" style={mono} className="flex items-baseline gap-2 text-2xl font-bold tracking-tight">
+            <span>FILE</span>
+            <span style={{ color: STAMP }}>—</span>
+            <span style={{ color: BLUE }}>PRO</span>
+          </Link>
 
-          <h1 className="text-3xl font-black">
-            File<span className="text-indigo-500">Pro</span>
-          </h1>
-
-          <div className="flex items-center gap-4">
-
-            <div className="text-right">
-
-              <p className="font-semibold">
-                {user?.username}
+          <div className="flex items-center gap-6">
+            <div style={mono} className="hidden text-right text-xs md:block">
+              <p className="font-semibold tracking-wide" style={{ color: INK }}>
+                {user?.username || "sys_user"}
               </p>
-
-              <p className="text-sm text-zinc-500">
-                {user?.email}
-              </p>
-
+              <p style={{ color: `${INK}80` }}>{user?.email || "user@system.local"}</p>
             </div>
 
             <button
               onClick={handleLogout}
-              className="rounded-xl border border-zinc-700 p-3 transition hover:border-red-500"
+              style={{ ...mono, borderColor: LINE }}
+              className="flex items-center gap-2 border px-4 py-2 text-xs uppercase tracking-wider transition hover:border-red-500 hover:text-red-400"
+              title="Logout Session"
             >
-              <LogOut size={18} />
+              <LogOut size={16} />
+              <span className="hidden sm:inline">EXIT</span>
             </button>
-
           </div>
-
         </div>
-
       </header>
 
-      <section className="mx-auto max-w-7xl px-6 py-14">
+   
+      <section className="relative mx-auto max-w-7xl px-6 py-14">
+        <div className="flex items-center gap-3">
+          <Terminal size={20} style={{ color: STAMP }} />
+          <span style={mono} className="text-xs uppercase tracking-[0.2em]">
+            System Workspace // Terminal ID #01
+          </span>
+        </div>
 
-        <h2 className="text-5xl font-black">
-          Dashboard
-        </h2>
+        <h1 style={mono} className="mt-4 text-4xl font-bold tracking-tight lg:text-5xl">
+          Control Panel
+        </h1>
 
-        <p className="mt-3 text-lg text-zinc-400">
-          Welcome back,
-          {" "}
-          {user?.username}
+        <p className="mt-3 text-base" style={{ color: `${INK}b3` }}>
+          Active Session: <span style={mono} className="text-sky-400">{user?.username}</span>
         </p>
 
-        <div className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {/* Action Grid */}
+        <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {navItems.map((item) => (
+            <Link
+              key={item.code}
+              to={item.to}
+              className="group relative border-2 p-8 transition-all hover:-translate-y-1 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)]"
+              style={{ background: CARD_BG, borderColor: LINE }}
+            >
+              <div className="flex items-center justify-between">
+                <div
+                  className="flex h-12 w-12 items-center justify-center border"
+                  style={{ borderColor: LINE }}
+                >
+                  {item.icon}
+                </div>
+                <span style={mono} className="text-xs">
+                  <span style={{ color: `${INK}66` }}>[</span>
+                  <span style={{ color: STAMP }}>{item.code}</span>
+                  <span style={{ color: `${INK}66` }}>]</span>
+                </span>
+              </div>
 
-          <Link
-            to="/upload"
-            className="rounded-3xl border border-zinc-800 bg-zinc-900 p-8 transition hover:border-indigo-500"
-          >
-            <Upload
-              size={34}
-              className="text-indigo-400"
-            />
+              <h2 style={mono} className="mt-6 text-xl font-bold group-hover:text-sky-400">
+                {item.title}
+              </h2>
 
-            <h3 className="mt-6 text-2xl font-bold">
-              Upload Files
-            </h3>
-
-            <p className="mt-3 text-zinc-400">
-              Upload and manage files.
-            </p>
-
-          </Link>
-
-          <Link
-            to="/files"
-            className="rounded-3xl border border-zinc-800 bg-zinc-900 p-8 transition hover:border-indigo-500"
-          >
-            <Files
-              size={34}
-              className="text-indigo-400"
-            />
-
-            <h3 className="mt-6 text-2xl font-bold">
-              My Files
-            </h3>
-
-            <p className="mt-3 text-zinc-400">
-              View uploaded files.
-            </p>
-
-          </Link>
-
-          <Link
-            to="/pdf"
-            className="rounded-3xl border border-zinc-800 bg-zinc-900 p-8 transition hover:border-indigo-500"
-          >
-            <FileText
-              size={34}
-              className="text-indigo-400"
-            />
-
-            <h3 className="mt-6 text-2xl font-bold">
-              PDF Tools
-            </h3>
-
-            <p className="mt-3 text-zinc-400">
-              Merge and split PDFs.
-            </p>
-
-          </Link>
-                    <Link
-            to="/images"
-            className="rounded-3xl border border-zinc-800 bg-zinc-900 p-8 transition hover:border-indigo-500"
-          >
-            <Image
-              size={34}
-              className="text-indigo-400"
-            />
-
-            <h3 className="mt-6 text-2xl font-bold">
-              Image Tools
-            </h3>
-
-            <p className="mt-3 text-zinc-400">
-              Resize, crop and optimize images.
-            </p>
-          </Link>
-
-          <Link
-            to="/share"
-            className="rounded-3xl border border-zinc-800 bg-zinc-900 p-8 transition hover:border-indigo-500"
-          >
-            <Share2
-              size={34}
-              className="text-indigo-400"
-            />
-
-            <h3 className="mt-6 text-2xl font-bold">
-              Share Files
-            </h3>
-
-            <p className="mt-3 text-zinc-400">
-              Generate secure share links.
-            </p>
-          </Link>
-
-          <Link
-            to="/profile"
-            className="rounded-3xl border border-zinc-800 bg-zinc-900 p-8 transition hover:border-indigo-500"
-          >
-            <User
-              size={34}
-              className="text-indigo-400"
-            />
-
-            <h3 className="mt-6 text-2xl font-bold">
-              Profile
-            </h3>
-
-            <p className="mt-3 text-zinc-400">
-              Manage your account settings.
-            </p>
-          </Link>
+              <p className="mt-3 text-sm leading-relaxed" style={{ color: `${INK}80` }}>
+                {item.description}
+              </p>
+            </Link>
+          ))}
         </div>
       </section>
     </main>

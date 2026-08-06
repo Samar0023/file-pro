@@ -19,59 +19,78 @@ interface AuthContextType {
   login: (data: auth.LoginData) => Promise<any>;
   signup: (data: auth.SignupData) => Promise<any>;
   logout: () => Promise<void>;
-  getProfile: () => Promise<void>;
+  getProfile: (isInitialLoad?: boolean) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const getProfile = async () => {
-  try {
-    const user = await auth.profile();
+  const extractUserData = (res: any): User | null => {
+    if (!res) return null;
+    const candidate = res?.data?.user || res?.user || res?.data || res;
+    if (candidate && typeof candidate === "object" && "id" in candidate) {
+      return candidate as User;
+    }
+    return null;
+  };
 
-    setUser(user);
-  } catch (err) {
-    console.log(err);
-    setUser(null);
-  } finally {
-    setLoading(false);
-  }
-};
+  const getProfile = async (isInitialLoad = false) => {
+    try {
+      if (isInitialLoad) {
+        setLoading(true);
+      }
+      const res = await auth.profile();
+      const userData = extractUserData(res);
+      setUser(userData);
+    } catch {
+      setUser(null);
+    } finally {
+      if (isInitialLoad) {
+        setLoading(false);
+      }
+    }
+  };
 
   const login = async (data: auth.LoginData) => {
     const res = await auth.login(data);
+    const userData = extractUserData(res);
 
-    try {
-      await getProfile();
-    } catch {}
+    if (userData) {
+      setUser(userData);
+    } else {
+      await getProfile(false);
+    }
 
     return res;
   };
 
   const signup = async (data: auth.SignupData) => {
     const res = await auth.signup(data);
+    const userData = extractUserData(res);
 
-    try {
-      await getProfile();
-    } catch {}
+    if (userData) {
+      setUser(userData);
+    } else {
+      await getProfile(false);
+    }
 
     return res;
   };
 
   const logout = async () => {
-    await auth.logout();
-    setUser(null);
+    try {
+      await auth.logout();
+    } catch {
+    } finally {
+      setUser(null);
+    }
   };
 
   useEffect(() => {
-    getProfile();
+    getProfile(true);
   }, []);
 
   return (
@@ -94,9 +113,7 @@ export const useAuth = () => {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error(
-      "useAuth must be used inside AuthProvider"
-    );
+    throw new Error("useAuth must be used inside AuthProvider");
   }
 
   return context;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, FileText } from "lucide-react";
+import { ArrowLeft, FileText, Terminal } from "lucide-react";
 import { Link } from "react-router-dom";
 import api from "../../api/axios";
 
@@ -10,6 +10,21 @@ interface FileData {
   originalname: string;
   mimetype: string;
 }
+
+const mono = { fontFamily: "'IBM Plex Mono', monospace" };
+const sans = { fontFamily: "'IBM Plex Sans', sans-serif" };
+
+const PAPER = "#0D1117";
+const INK = "#F0F6FC";
+const BLUE = "#38BDF8";
+const STAMP = "#FF6B4A";
+const LINE = "#21262D";
+const CARD_BG = "#161B22";
+
+const gridBg = {
+  backgroundImage: `linear-gradient(${LINE} 1px, transparent 1px), linear-gradient(90deg, ${LINE} 1px, transparent 1px)`,
+  backgroundSize: "40px 40px",
+};
 
 const MergePdf = () => {
   const [files, setFiles] = useState<FileData[]>([]);
@@ -24,8 +39,7 @@ const MergePdf = () => {
       const res = await api.get("/files/allfiles");
 
       const pdfs = res.data.files.filter(
-        (file: FileData) =>
-          file.mimetype === "application/pdf"
+        (file: FileData) => file.mimetype === "application/pdf"
       );
 
       setFiles(pdfs);
@@ -40,9 +54,7 @@ const MergePdf = () => {
 
   const toggleSelect = (id: string) => {
     if (selected.includes(id)) {
-      setSelected(
-        selected.filter((item) => item !== id)
-      );
+      setSelected(selected.filter((item) => item !== id));
     } else {
       setSelected([...selected, id]);
     }
@@ -50,33 +62,23 @@ const MergePdf = () => {
 
   const merge = async () => {
     if (selected.length < 2) {
-      setError(
-        "Select at least two PDF files."
-      );
+      setError("Select at least two PDF files.");
       return;
     }
 
     try {
       setProcessing(true);
-
       setError("");
-
       setMessage("");
 
       await api.post("/pdf/merge-pdf", {
         fileIds: selected,
       });
 
-      setMessage(
-        "PDFs merged successfully."
-      );
-
+      setMessage("PDFs merged successfully.");
       setSelected([]);
     } catch (err: any) {
-      setError(
-        err?.response?.data?.message ||
-          "Merge failed."
-      );
+      setError(err?.response?.data?.message || "Merge failed.");
     } finally {
       setProcessing(false);
     }
@@ -84,119 +86,142 @@ const MergePdf = () => {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
-        Loading...
+      <main
+        style={{ ...mono, background: PAPER, color: INK }}
+        className="flex min-h-screen items-center justify-center text-sm"
+      >
+        LOADING_PIPELINE...
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
-
-      <div className="mx-auto max-w-5xl px-6 py-14">
-
-        <Link
-          to="/pdf"
-          className="mb-10 inline-flex items-center gap-2 text-zinc-400 hover:text-white"
-        >
-          <ArrowLeft size={18} />
-          PDF Dashboard
-        </Link>
-
-        <h1 className="text-5xl font-black">
-          Merge PDF
-        </h1>
-
-        <p className="mt-3 text-zinc-400">
-          Select two or more uploaded PDF files.
-        </p>
-
-        <div className="mt-12 space-y-5">{files.length === 0 ? (
-  <div className="rounded-3xl border border-dashed border-zinc-700 bg-zinc-900 py-20 text-center">
-    <FileText
-      size={60}
-      className="mx-auto text-zinc-600"
-    />
-
-    <h2 className="mt-8 text-3xl font-bold">
-      No PDF Files
-    </h2>
-
-    <p className="mt-3 text-zinc-500">
-      Upload PDF files first.
-    </p>
-
-    <Link
-      to="/upload"
-      className="mt-8 inline-block rounded-xl bg-indigo-600 px-6 py-3 font-semibold hover:bg-indigo-500"
+    <main
+      style={{ ...sans, background: PAPER, color: INK }}
+      className="relative min-h-screen"
     >
-      Upload PDF
-    </Link>
-  </div>
-) : (
-  files.map((file) => (
-    <label
-      key={file.id}
-      className="flex cursor-pointer items-start gap-5 rounded-3xl border border-zinc-800 bg-zinc-900 p-6 transition hover:border-indigo-500"
-    >
-      <input
-        type="checkbox"
-        checked={selected.includes(file.id)}
-        onChange={() =>
-          toggleSelect(file.id)
-        }
-        className="mt-2 h-5 w-5 accent-indigo-600"
+      <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet"
       />
 
-      <div className="rounded-xl bg-indigo-500/10 p-4">
-        <FileText
-          size={30}
-          className="text-indigo-400"
-        />
-      </div>
+      <div className="pointer-events-none absolute inset-0" style={gridBg} />
 
-      <div className="flex-1">
-        <h2 className="text-xl font-bold">
-          {file.title}
-        </h2>
+      <section className="relative mx-auto max-w-5xl px-6 py-14">
+        <Link
+          to="/pdf"
+          style={mono}
+          className="mb-10 inline-flex items-center gap-2 text-xs uppercase tracking-wider text-sky-400 hover:underline"
+        >
+          <ArrowLeft size={16} />
+          Return to PDF Tools
+        </Link>
 
-        <p className="mt-2 text-zinc-400">
-          {file.description}
+        <div className="flex items-center gap-3">
+          <Terminal size={20} style={{ color: STAMP }} />
+          <span style={mono} className="text-xs uppercase tracking-[0.2em]">
+            System Workspace // Concatenation ID #03
+          </span>
+        </div>
+
+        <h1 style={mono} className="mt-4 text-4xl font-bold tracking-tight">
+          Merge PDF Streams
+        </h1>
+
+        <p className="mt-3 text-base" style={{ color: `${INK}b3` }}>
+          Select two or more binary PDF files to execute sequential merge.
         </p>
 
-        <p className="mt-3 text-sm text-zinc-500">
-          {file.originalname}
-        </p>
-      </div>
-    </label>
-  ))
-)}
+        <div className="mt-10 space-y-5">
+          {files.length === 0 ? (
+            <div
+              className="border-2 border-dashed p-14 text-center"
+              style={{ background: CARD_BG, borderColor: LINE }}
+            >
+              <FileText size={50} className="mx-auto" style={{ color: STAMP }} />
 
-{error && (
-  <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-red-400">
-    {error}
-  </div>
-)}
+              <h2 style={mono} className="mt-6 text-xl font-bold">
+                NO_PDF_STREAMS_FOUND
+              </h2>
 
-{message && (
-  <div className="rounded-xl border border-green-500/20 bg-green-500/10 p-4 text-green-400">
-    {message}
-  </div>
-)}
-<button
-  onClick={merge}
-  disabled={processing}
-  className="mt-10 w-full rounded-2xl bg-indigo-600 py-4 text-lg font-semibold transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
->
-  {processing ? "Merging..." : "Merge Selected PDFs"}
-</button>
+              <p style={mono} className="mt-2 text-xs text-slate-400">
+                No target PDF objects detected in system storage.
+              </p>
 
-</div>
+              <Link
+                to="/upload"
+                style={{ ...mono, borderColor: LINE }}
+                className="mt-6 inline-block border bg-sky-500/10 px-6 py-3 text-xs font-bold uppercase tracking-wider text-sky-400 transition hover:bg-sky-500/20"
+              >
+                Upload PDF Stream
+              </Link>
+            </div>
+          ) : (
+            files.map((file) => (
+              <label
+                key={file.id}
+                className="flex cursor-pointer items-start gap-5 border-2 p-6 transition-all hover:-translate-y-0.5 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)]"
+                style={{ background: CARD_BG, borderColor: LINE }}
+              >
+                <input
+                  type="checkbox"
+                  checked={selected.includes(file.id)}
+                  onChange={() => toggleSelect(file.id)}
+                  className="mt-1.5 h-4 w-4 accent-sky-400"
+                />
 
-</div>
+                <div
+                  className="flex h-10 w-10 items-center justify-center border"
+                  style={{ borderColor: LINE }}
+                >
+                  <FileText size={20} style={{ color: BLUE }} />
+                </div>
 
-</main>
-);
+                <div className="flex-1">
+                  <h2 style={mono} className="text-base font-bold text-sky-400">
+                    {file.title}
+                  </h2>
+
+                  <p className="mt-1 text-sm text-slate-400">{file.description}</p>
+
+                  <p style={mono} className="mt-3 text-xs text-slate-500">
+                    SRC: {file.originalname}
+                  </p>
+                </div>
+              </label>
+            ))
+          )}
+
+          {error && (
+            <div
+              style={mono}
+              className="border border-red-500/40 bg-red-500/10 p-4 text-xs text-red-400"
+            >
+              [ERROR] {error}
+            </div>
+          )}
+
+          {message && (
+            <div
+              style={mono}
+              className="border border-emerald-500/40 bg-emerald-500/10 p-4 text-xs text-emerald-400"
+            >
+              [SUCCESS] {message}
+            </div>
+          )}
+
+          <button
+            onClick={merge}
+            disabled={processing}
+            style={{ ...mono, borderColor: LINE }}
+            className="w-full border bg-sky-500/10 py-4 text-sm font-bold uppercase tracking-wider text-sky-400 transition hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {processing ? "MERGING_PIPELINE..." : "EXECUTE_MERGE"}
+          </button>
+        </div>
+      </section>
+    </main>
+  );
 };
 
 export default MergePdf;
