@@ -8,6 +8,9 @@ import { prisma } from "../config/prisma"
  }
 export const authmiddleware = expressAsyncHandler(async (req: Request, res: Response, next: NextFunction):Promise <void> => {
     try{
+        console.log("Cookies:", req.cookies);
+console.log("Headers:", req.headers.cookie);
+        console.log(req.cookies);
     const token = req.cookies?.token
 
     if (!token) {

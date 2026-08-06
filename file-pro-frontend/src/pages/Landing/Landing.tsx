@@ -9,6 +9,7 @@ import {
   Terminal,
   CheckCircle2,
   Menu,
+  LayoutDashboard,
 } from "lucide-react";
 
 const mono = { fontFamily: "'IBM Plex Mono', monospace" };
@@ -43,6 +44,9 @@ const gridBg = {
 };
 
 const Landing = () => {
+  
+  const isLoggedIn = true;
+
   return (
     <main style={{ ...sans, background: PAPER, color: INK }} className="min-h-screen">
       <link
@@ -50,7 +54,7 @@ const Landing = () => {
         rel="stylesheet"
       />
 
-
+    
       <header className="sticky top-0 z-50 border-b" style={{ borderColor: LINE, background: `${PAPER}e6`, backdropFilter: "blur(8px)" }}>
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
           <Link to="/" style={mono} className="flex items-baseline gap-2 text-2xl font-bold tracking-tight">
@@ -68,20 +72,33 @@ const Landing = () => {
           </nav>
 
           <div className="hidden items-center gap-3 lg:flex">
-            <Link
-              to="/login"
-              style={{ ...mono, borderColor: LINE }}
-              className="rounded-none border px-5 py-2.5 text-sm transition hover:bg-white/5"
-            >
-              Login
-            </Link>
-            <Link
-              to="/signup"
-              style={{ ...mono, background: INK, color: PAPER }}
-              className="rounded-none px-5 py-2.5 text-sm font-medium transition hover:opacity-90"
-            >
-              Get Started
-            </Link>
+            {isLoggedIn ? (
+              <Link
+                to="/dashboard"
+                style={{ ...mono, background: BLUE, color: PAPER }}
+                className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold transition hover:opacity-90"
+              >
+                <LayoutDashboard size={16} />
+                Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  style={{ ...mono, borderColor: LINE }}
+                  className="rounded-none border px-5 py-2.5 text-sm transition hover:bg-white/5"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  style={{ ...mono, background: INK, color: PAPER }}
+                  className="rounded-none px-5 py-2.5 text-sm font-medium transition hover:opacity-90"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
 
           <button className="lg:hidden" aria-label="Menu">
@@ -90,7 +107,7 @@ const Landing = () => {
         </div>
       </header>
 
-
+    
       <section className="relative overflow-hidden border-b" style={{ borderColor: LINE }}>
         <div className="pointer-events-none absolute inset-0" style={gridBg} />
 
@@ -115,21 +132,35 @@ const Landing = () => {
             </p>
 
             <div className="mt-10 flex flex-wrap gap-4">
-              <Link
-                to="/signup"
-                style={{ ...mono, background: INK, color: PAPER }}
-                className="flex items-center gap-2 px-7 py-4 text-sm font-medium transition hover:opacity-90"
-              >
-                Start Free
-                <ArrowRight size={16} />
-              </Link>
-              <Link
-                to="/login"
-                style={{ ...mono, borderColor: LINE }}
-                className="border px-7 py-4 text-sm transition hover:bg-white/5"
-              >
-                Login
-              </Link>
+              {isLoggedIn ? (
+                <Link
+                  to="/dashboard"
+                  style={{ ...mono, background: BLUE, color: PAPER }}
+                  className="flex items-center gap-2 px-7 py-4 text-sm font-semibold transition hover:opacity-90"
+                >
+                  <LayoutDashboard size={18} />
+                  Go to Dashboard
+                  <ArrowRight size={16} />
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/signup"
+                    style={{ ...mono, background: INK, color: PAPER }}
+                    className="flex items-center gap-2 px-7 py-4 text-sm font-medium transition hover:opacity-90"
+                  >
+                    Start Free
+                    <ArrowRight size={16} />
+                  </Link>
+                  <Link
+                    to="/login"
+                    style={{ ...mono, borderColor: LINE }}
+                    className="border px-7 py-4 text-sm transition hover:bg-white/5"
+                  >
+                    Login
+                  </Link>
+                </>
+              )}
             </div>
 
             <div style={mono} className="mt-14 flex flex-wrap gap-x-8 gap-y-2 text-xs uppercase tracking-[0.1em]">
@@ -139,13 +170,11 @@ const Landing = () => {
             </div>
           </div>
 
-       
           <div className="relative mx-auto w-full max-w-sm">
             <div
               className="relative border-2 p-7 shadow-[6px_6px_0_0_rgba(0,0,0,0.6)]"
               style={{ background: CARD_BG, borderColor: LINE }}
             >
-            
               <div className="absolute -left-3 top-0 flex h-full flex-col justify-around" aria-hidden>
                 {Array.from({ length: 10 }).map((_, i) => (
                   <span key={i} className="h-2 w-2 rounded-full" style={{ background: PAPER, border: `2px solid ${LINE}` }} />
@@ -199,7 +228,7 @@ const Landing = () => {
         </div>
       </section>
 
-  
+     
       <section id="features" className="border-b" style={{ borderColor: LINE }}>
         <div className="mx-auto max-w-7xl px-6 py-24">
           <div className="max-w-2xl">
@@ -237,7 +266,7 @@ const Landing = () => {
         </div>
       </section>
 
-    
+      
       <section id="workflow" className="border-b" style={{ borderColor: LINE }}>
         <div className="mx-auto max-w-7xl px-6 py-24">
           <p style={mono} className="text-xs uppercase tracking-[0.25em]">
@@ -265,6 +294,7 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* CTA Section */}
       <section id="pricing" className="border-b" style={{ borderColor: LINE }}>
         <div className="mx-auto max-w-5xl px-6 py-24">
           <div className="border-2 border-dashed p-12 text-center md:p-20" style={{ borderColor: LINE }}>
@@ -280,22 +310,35 @@ const Landing = () => {
               Start using File-Pro today and manage every file from one workspace.
             </p>
             <div className="mt-12 flex flex-wrap justify-center gap-4">
-              <Link
-                to="/signup"
-                style={{ ...mono, background: INK, color: PAPER }}
-                className="px-8 py-4 text-sm font-medium transition hover:opacity-90"
-              >
-                Create Account
-              </Link>
-              <Link to="/login" style={{ ...mono, borderColor: LINE }} className="border px-8 py-4 text-sm transition hover:bg-white/5">
-                Login
-              </Link>
+              {isLoggedIn ? (
+                <Link
+                  to="/dashboard"
+                  style={{ ...mono, background: BLUE, color: PAPER }}
+                  className="px-8 py-4 text-sm font-semibold transition hover:opacity-90 flex items-center gap-2"
+                >
+                  <LayoutDashboard size={18} />
+                  Go to Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/signup"
+                    style={{ ...mono, background: INK, color: PAPER }}
+                    className="px-8 py-4 text-sm font-medium transition hover:opacity-90"
+                  >
+                    Create Account
+                  </Link>
+                  <Link to="/login" style={{ ...mono, borderColor: LINE }} className="border px-8 py-4 text-sm transition hover:bg-white/5">
+                    Login
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
       </section>
 
-    
+   
       <footer id="contact">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 py-10 text-xs md:flex-row" style={mono}>
           <div style={{ color: `${INK}80` }}>FILE-PRO™ · BUILD 2026.08 · ALL SYSTEMS NOMINAL</div>
