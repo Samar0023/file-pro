@@ -14,6 +14,13 @@ app.use(express.urlencoded({
 
 app.use(cookieParser());
 
+app.get("/api/debug-cookie", (req, res) => {
+  res.json({
+    cookies: req.cookies,
+    header: req.headers.cookie ?? null,
+  });
+});
+
 app.get("/" , (req,res) =>{
       res.json({success:true , message:"app Running on Backend"});
 })
