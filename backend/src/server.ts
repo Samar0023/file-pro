@@ -9,7 +9,7 @@ import authRoutes from "./route/user.route"
 
 
 app.use("/api/files" , uploadRoute)
-app.use("/api/custom" , sharpRoutes)
+app.use("/api/images" , sharpRoutes)
 app.use("/api/pdf" , pdfRoutes)
 app.use("api/share" , shareRoutes)
 app.use("/api/auth", authRoutes)

@@ -10,6 +10,8 @@ type FileParams = {
 }
 
 export const  resizeImagex  = expressAsyncHandler(async(req:Request<FileParams> , res:Response)=>{
+     
+    const {height , width} = req.body;
     const {id} = req.params
     const file = await prisma.file.findFirst({
         where:{
@@ -17,6 +19,7 @@ export const  resizeImagex  = expressAsyncHandler(async(req:Request<FileParams> 
             userId:req.user.id,
         }
     })
+
 
     if(!file){
         res.status(404).json({
@@ -26,9 +29,17 @@ export const  resizeImagex  = expressAsyncHandler(async(req:Request<FileParams> 
         return
     }
 
+    if (!width || !height) {
+  res.status(400).json({
+    success: false,
+    message: "Width and height are required",
+  });
+  return;
+}
+
     const Imagebuffer = await getCloudinaryBuffer(file.fileUrl!)
 
-   const processedPath =  await resizeImage(Imagebuffer , file.fileName )
+   const processedPath =  await resizeImage(Imagebuffer , file.fileName ,  Number(width),  Number(height))
 
    const cloudinaryResult = await uploadcloudinary(
     processedPath,
@@ -52,6 +63,7 @@ export const  resizeImagex  = expressAsyncHandler(async(req:Request<FileParams> 
      res.status(200).json({
       success: true,
       message: "Image resized successfully",
+      data:processedFile
     });  return 
 })
 
@@ -98,6 +110,7 @@ export const  blurImagex  = expressAsyncHandler(async(req:Request<FileParams> , 
      res.status(200).json({
       success: true,
       message: "Image blured successfully",
+      data:processedFile
     });  return 
 })
 
@@ -128,6 +141,7 @@ export const  compositeImagex  = expressAsyncHandler(async(req:Request<FileParam
         res.status(404).json({
             success:false,
             message:"file not exist",
+            
         })
         return
     }
@@ -158,10 +172,14 @@ export const  compositeImagex  = expressAsyncHandler(async(req:Request<FileParam
      res.status(200).json({
       success: true,
       message: "Image composed successfully",
+      data:processedFile
     });  return 
 })
 
 export const  rotateImagex  = expressAsyncHandler(async(req:Request<FileParams> , res:Response)=>{
+    const {rotation} = req.body
+
+    
     const {id} = req.params
     const file = await prisma.file.findFirst({
         where:{
@@ -178,7 +196,7 @@ export const  rotateImagex  = expressAsyncHandler(async(req:Request<FileParams> 
         return
     }
    const Imagebuffer = await getCloudinaryBuffer(file.fileUrl!)
-   const processedPath = await rotateImage(Imagebuffer , file.fileName )
+   const processedPath = await rotateImage(Imagebuffer , file.fileName , Number(rotation))
 
       const cloudinaryResult = await uploadcloudinary(
     processedPath,
@@ -203,6 +221,7 @@ export const  rotateImagex  = expressAsyncHandler(async(req:Request<FileParams> 
      res.status(200).json({
       success: true,
       message: "Image rotated successfully",
+      data:processedFile
     });  return 
 })
 
@@ -247,10 +266,13 @@ const Imagebuffer = await getCloudinaryBuffer(file.fileUrl!)
      res.status(200).json({
       success: true,
       message: "Image grayScaled successfully",
+      data:processedFile
     });  return 
 })
 
 export const  cropImagex = expressAsyncHandler(async(req:Request<FileParams> , res:Response)=>{
+
+    const {width , height , top , left} = req.body;
     const {id} = req.params
     const file = await prisma.file.findFirst({
         where:{
@@ -259,6 +281,8 @@ export const  cropImagex = expressAsyncHandler(async(req:Request<FileParams> , r
         }
     })
 
+    
+
     if(!file){
         res.status(404).json({
             success:false,
@@ -266,8 +290,17 @@ export const  cropImagex = expressAsyncHandler(async(req:Request<FileParams> , r
         })
         return
     }
+
+    if(!width || !height || !top || !left){
+    res.status(400).json({
+            success:false,
+            message:"Particular Information is Required",
+        })
+        return
+    }
+
 const Imagebuffer = await getCloudinaryBuffer(file.fileUrl!)
-const processedPath =    await cropImage(Imagebuffer , file.fileName )
+const processedPath =    await cropImage(Imagebuffer , file.fileName , width , height , left , top )
 
 
 
@@ -293,6 +326,7 @@ const processedPath =    await cropImage(Imagebuffer , file.fileName )
      res.status(200).json({
       success: true,
       message: "Image cropped successfully",
+      data:processedFile
     });  return 
 })
 

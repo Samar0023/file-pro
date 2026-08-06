@@ -4,6 +4,6 @@ import express from "express"
 
 const router = express.Router()
 
-router.post("share-file" , sharefile)
+router.post("/share-file" , sharefile)
 
 export default router

@@ -55,7 +55,8 @@ export const createPdfx = expressAsyncHandler(async (req: Request<FileParams>, r
 
     res.status(201).json({
         success: true,
-        message: "PDF created Successfully"
+        message: "PDF created Successfully",
+        data:processedFile
     })
     return
 })
@@ -107,7 +108,8 @@ export const mergePdfx = expressAsyncHandler(async (req: Request<FileParams>, re
 
     res.status(201).json({
         success: true,
-        message: "PDF created Successfully"
+        message: "PDF merged Successfully",
+        data:processedFile
     })
     return
 
@@ -162,7 +164,8 @@ for(let i = 0 ; i < pdfbuffer.length ; i++){
  
     res.status(201).json({
         success: true,
-        message: "PDF Splitted Successfully"
+        message: "PDF Splitted Successfully",
+        
     })
     return
 

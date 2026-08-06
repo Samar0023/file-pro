@@ -2,14 +2,14 @@ import sharp from "sharp"
 import path from "path"
  
  
-export const resizeImage = async(fileBuffer: Buffer , fileName:string) =>{
+export const resizeImage = async(fileBuffer: Buffer , fileName:string , height:number , width:number) =>{
         const name = path.parse(fileName).name;
     const processedName = `processed/${Date.now()}-${name}.jpg`;
     await sharp(fileBuffer) 
-    .resize({width:200 , height:140}).jpeg({quality:80})
+    .resize(width, height).jpeg({quality:80})
     .toFile(processedName)
 
-    return processedName
+    return processedName;
 }
 
 export const blurImage = async(fileBuffer:Buffer , fileName:string) =>{
@@ -22,12 +22,12 @@ export const blurImage = async(fileBuffer:Buffer , fileName:string) =>{
     return processedName
 }
 
-export const rotateImage = async(fileBuffer:Buffer , fileName:string) =>{
+export const rotateImage = async(fileBuffer:Buffer , fileName:string , rotation:number) =>{
        const name = path.parse(fileName).name;
     const processedName = `processed/${Date.now()}-${name}.jpg`;
 
     await sharp(fileBuffer)
-    .rotate(90)
+    .rotate(rotation)
     .toFile(processedName)
     return processedName
 }
@@ -42,17 +42,26 @@ export const grayscaleImage = async(fileBuffer:Buffer, fileName:string) =>{
     return processedName
 }
 
-export const cropImage = async(fileBuffer:Buffer , fileName:string) =>{
+export const cropImage = async(fileBuffer:Buffer , fileName:string , width:number , height:number , left:number , top:number ) =>{
        const name = path.parse(fileName).name;
     const processedName =`processed/${Date.now()}-${name}.jpg`;
-
+    const metadata = await sharp(fileBuffer).metadata()
+    
+    if(!metadata.width || !metadata.height){
+        throw new Error("Unable to read Image Dimensions")
+    }
+      if (
+    left < 0 ||
+    top < 0 ||
+    width <= 0 ||
+    height <= 0 ||
+    left + width > metadata.width ||
+    top + height > metadata.height
+  ) {
+    throw new Error("Crop area exceeds image boundaries.");
+  }
     await sharp(fileBuffer)
-    .extract({
-        left:100,
-        top:100,
-        width:300,
-        height:300,
-    })
+    .extract({width , height , left , top})
     .toFile(processedName)
     return processedName
 }

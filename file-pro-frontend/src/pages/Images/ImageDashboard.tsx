@@ -2,9 +2,7 @@ import { Link } from "react-router-dom";
 import {
   Image,
   Images,
-  Minimize2,
-  Expand,
-  RefreshCcw,
+ 
   ArrowLeft,
 } from "lucide-react";
 
@@ -16,24 +14,7 @@ const ImageDashboard = () => {
       icon: <Images size={34} />,
       path: "/images/all",
     },
-    {
-      title: "Compress",
-      desc: "Reduce image size",
-      icon: <Minimize2 size={34} />,
-      path: "/images/compress",
-    },
-    {
-      title: "Resize",
-      desc: "Resize image dimensions",
-      icon: <Expand size={34} />,
-      path: "/images/resize",
-    },
-    {
-      title: "Convert",
-      desc: "Convert image formats",
-      icon: <RefreshCcw size={34} />,
-      path: "/images/convert",
-    },
+    
   ];
 
   return (

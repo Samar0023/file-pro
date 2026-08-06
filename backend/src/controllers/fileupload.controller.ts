@@ -18,7 +18,7 @@ type FileParams = {
 }
 
 export const uploadfile = asyncHandler(async (req: Request<{}, {}, RegisterBody>, res: Response) => {
-
+   try{
     const { title, description } = req.body;
     const file = req.file;
 
@@ -72,8 +72,19 @@ export const uploadfile = asyncHandler(async (req: Request<{}, {}, RegisterBody>
     });
 
     return;
+
   }
-);
+  catch(err){
+  console.error("UPLOAD ERROR:", err);
+     res.status(500).json({
+      success: false,
+      message: "Upload failed",
+      error:
+        err instanceof Error ? err.message : String(err),
+    });
+    return
+  }
+  });
 
 export const getallfiles = asyncHandler(async (req:Request , res:Response) =>{
          const files = await prisma.file.findMany({

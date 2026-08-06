@@ -35,8 +35,7 @@ const ResizeImage = () => {
     try {
       setLoading(true);
 
-      const res = await api.post("/images/resize", {
-        fileId: id,
+      const res = await api.post(`/images/resize/${id}`, {
         width,
         height,
       });
