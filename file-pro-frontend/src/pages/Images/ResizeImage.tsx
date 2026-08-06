@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Expand } from "lucide-react";
 import api from "../../api/axios";
 
 const ResizeImage = () => {
-  const [search] = useSearchParams();
-
-  const id = search.get("id");
+const { id } = useParams();
 
   const [image, setImage] = useState<any>(null);
 

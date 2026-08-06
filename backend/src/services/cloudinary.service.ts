@@ -21,7 +21,7 @@ export const uploadcloudinary  = async(filePath: string | Buffer | Uint8Array , 
         const uploadstream = cloudinary.uploader.upload_stream(
             {
             public_id:fileName,
-            resource_type:"raw"
+            resource_type:"auto"
             },
             (error,result)=>{
                 if(error){

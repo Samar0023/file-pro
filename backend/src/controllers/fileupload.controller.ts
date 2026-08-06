@@ -41,7 +41,7 @@ export const uploadfile = asyncHandler(async (req: Request<{}, {}, RegisterBody>
 
   
     const cloudinaryResult = await uploadcloudinary(
-      file.path,
+      file.buffer,
       file.originalname
     );
 
@@ -53,7 +53,7 @@ export const uploadfile = asyncHandler(async (req: Request<{}, {}, RegisterBody>
         description,
 
         OriginalName: file.originalname,
-        fileName: file.filename,
+        fileName: `${Date.now()}-${file.originalname}`,
 
   
         fileUrl: cloudinaryResult.secure_url,

@@ -10,7 +10,7 @@ type FileParams = {
 }
 
 export const  resizeImagex  = expressAsyncHandler(async(req:Request<FileParams> , res:Response)=>{
-     
+
     const {height , width} = req.body;
     const {id} = req.params
     const file = await prisma.file.findFirst({
@@ -39,10 +39,10 @@ export const  resizeImagex  = expressAsyncHandler(async(req:Request<FileParams> 
 
     const Imagebuffer = await getCloudinaryBuffer(file.fileUrl!)
 
-   const processedPath =  await resizeImage(Imagebuffer , file.fileName ,  Number(width),  Number(height))
+   const processedBuffer =  await resizeImage(Imagebuffer , file.fileName ,  Number(width),  Number(height))
 
    const cloudinaryResult = await uploadcloudinary(
-    processedPath,
+    processedBuffer,
     file.fileName
    )
 
@@ -300,12 +300,12 @@ export const  cropImagex = expressAsyncHandler(async(req:Request<FileParams> , r
     }
 
 const Imagebuffer = await getCloudinaryBuffer(file.fileUrl!)
-const processedPath =    await cropImage(Imagebuffer , file.fileName , width , height , left , top )
+const processedBuffer =    await cropImage(Imagebuffer , file.fileName , width , height , left , top )
 
 
 
       const cloudinaryResult = await uploadcloudinary(
-    processedPath,
+     processedBuffer,
     file.fileName
    )
 
