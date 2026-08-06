@@ -5,7 +5,7 @@ interface ShareProps {
   fileId: string;
 }
 
-const ShareFile = ({ fileId }: ShareProps) => {
+const ShareImage = ({ fileId }: ShareProps) => {
   const [shareUrl, setShareUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -71,4 +71,4 @@ const ShareFile = ({ fileId }: ShareProps) => {
   );
 };
 
-export default ShareFile;
+export default ShareImage;

@@ -4,7 +4,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 
 import Landing from "./pages/Landing/Landing";
-
+import SharePage from "./pages/Share/SharePage";
 import Login from "./pages/Auth/Login";
 import Signup from "./pages/Auth/Signup";
 
@@ -233,6 +233,11 @@ function App() {
               <ConvertImage />
             </ProtectedRoute>
           }
+        />
+
+           <Route
+          path="/share/:token"
+          element={<SharePage />}
         />
 
         {/* 404 */}
