@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState} from "react";
+import type { MouseEvent } from "react"
 import {
   ArrowLeft,
   Terminal,
@@ -34,7 +35,7 @@ const gridBg = {
 
 type ImageFile = {
   id: string;
-  title: string;
+  title?: string;
   filename: string;
   size: number;
 };
@@ -50,22 +51,21 @@ const CreatePdf = () => {
   const [error, setError] = useState("");
 
   const toggleImage = (id: string) => {
-    if (selected.includes(id)) {
-      setSelected(selected.filter((item) => item !== id));
-    } else {
-      setSelected([...selected, id]);
-    }
+    setSelected((prevSelected) =>
+      prevSelected.includes(id)
+        ? prevSelected.filter((item) => item !== id)
+        : [...prevSelected, id]
+    );
   };
 
   const selectAllFiltered = () => {
     const filteredIds = filteredImages.map((img) => img.id);
-    const combined = Array.from(new Set([...selected, ...filteredIds]));
-    setSelected(combined);
+    setSelected((prev) => Array.from(new Set([...prev, ...filteredIds])));
   };
 
   const deselectAllFiltered = () => {
     const filteredIds = new Set(filteredImages.map((img) => img.id));
-    setSelected(selected.filter((id) => !filteredIds.has(id)));
+    setSelected((prev) => prev.filter((id) => !filteredIds.has(id)));
   };
 
   useEffect(() => {
@@ -73,7 +73,14 @@ const CreatePdf = () => {
       try {
         setLoading(true);
         const res = await api.get("/files/images");
-        setImages(res.data.files || []);
+        
+        const rawFiles = res.data.files || res.data || [];
+        const normalizedFiles = rawFiles.map((file: any) => ({
+          ...file,
+          id: file.id || file._id,
+        }));
+
+        setImages(normalizedFiles);
       } catch (err: any) {
         setError(err?.response?.data?.message || "Unable to load images.");
       } finally {
@@ -85,7 +92,7 @@ const CreatePdf = () => {
   }, []);
 
   const filteredImages = images.filter((img) =>
-    img.filename.toLowerCase().includes(search.toLowerCase())
+    img.filename?.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleCreatePdf = async () => {
@@ -255,7 +262,7 @@ const CreatePdf = () => {
                     <div
                       key={img.id}
                       onClick={() => toggleImage(img.id)}
-                      className={`flex cursor-pointer items-center justify-between border-b p-4 transition ${
+                      className={`flex cursor-pointer select-none items-center justify-between border-b p-4 transition ${
                         isChecked ? "bg-sky-500/10" : "hover:bg-zinc-900"
                       }`}
                       style={{
@@ -266,7 +273,10 @@ const CreatePdf = () => {
                         <input
                           type="checkbox"
                           checked={isChecked}
-                          onChange={() => {}}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            toggleImage(img.id);
+                          }}
                           className="h-4 w-4 accent-sky-500 cursor-pointer"
                         />
 
@@ -327,7 +337,8 @@ const CreatePdf = () => {
                         {index + 1}. {img?.filename || id}
                       </span>
                       <button
-                        onClick={(e) => {
+                        type="button"
+                        onClick={(e: MouseEvent) => {
                           e.stopPropagation();
                           toggleImage(id);
                         }}
@@ -384,6 +395,7 @@ const CreatePdf = () => {
           )}
 
           <button
+            type="button"
             onClick={handleCreatePdf}
             disabled={loading}
             style={{
