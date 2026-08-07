@@ -44,7 +44,7 @@ const CreatePdf = () => {
   const [pdfName, setPdfName] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState("");
+  const [success, ] = useState("");
   const [error, setError] = useState("");
 
   const toggleImage = (id: string) => {
