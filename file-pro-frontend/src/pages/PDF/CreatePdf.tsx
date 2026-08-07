@@ -1,5 +1,5 @@
-import { useEffect, useState} from "react";
-import type { MouseEvent } from "react"
+import { useEffect, useState } from "react";
+ import type{MouseEvent} from "react"
 import {
   ArrowLeft,
   Terminal,
@@ -72,12 +72,13 @@ const CreatePdf = () => {
     const fetchImages = async () => {
       try {
         setLoading(true);
+        setError("");
         const res = await api.get("/files/images");
-        
+
         const rawFiles = res.data.files || res.data || [];
         const normalizedFiles = rawFiles.map((file: any) => ({
           ...file,
-          id: file.id || file._id,
+          id: String(file.id || file._id),
         }));
 
         setImages(normalizedFiles);
@@ -251,7 +252,11 @@ const CreatePdf = () => {
                 borderColor: LINE,
               }}
             >
-              {filteredImages.length === 0 ? (
+              {loading ? (
+                <div className="p-10 text-center text-slate-400" style={mono}>
+                  Loading images...
+                </div>
+              ) : filteredImages.length === 0 ? (
                 <div className="p-10 text-center text-slate-500" style={mono}>
                   No uploaded images found.
                 </div>
