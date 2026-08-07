@@ -1,10 +1,21 @@
-import { useRef, useState } from "react";
-import { UploadCloud, FileText, ArrowLeft, Terminal } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import {
+  ArrowLeft,
+  Terminal,
+  Search,
+  Image,
+  FileText,
+} from "lucide-react";
+import { Link } from "react-router-dom";
 import api from "../../api/axios";
 
-const mono = { fontFamily: "'IBM Plex Mono', monospace" };
-const sans = { fontFamily: "'IBM Plex Sans', sans-serif" };
+const mono = {
+  fontFamily: "'IBM Plex Mono', monospace",
+};
+
+const sans = {
+  fontFamily: "'IBM Plex Sans', sans-serif",
+};
 
 const PAPER = "#0D1117";
 const INK = "#F0F6FC";
@@ -14,95 +25,69 @@ const LINE = "#21262D";
 const CARD_BG = "#161B22";
 
 const gridBg = {
-  backgroundImage: `linear-gradient(${LINE} 1px, transparent 1px), linear-gradient(90deg, ${LINE} 1px, transparent 1px)`,
+  backgroundImage: `linear-gradient(${LINE} 1px, transparent 1px),
+  linear-gradient(90deg, ${LINE} 1px, transparent 1px)`,
   backgroundSize: "40px 40px",
 };
 
-const Upload = () => {
-  const navigate = useNavigate();
-  const inputRef = useRef<HTMLInputElement>(null);
+type ImageFile = {
+  id: string;
+  title: string;
+  filename: string;
+  size: number;
+};
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const [progress, setProgress] = useState(0);
+const CreatePdf = () => {
+  const [images, setImages] = useState<ImageFile[]>([]);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
+  const [pdfName, setPdfName] = useState("");
+
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
 
-  const chooseFile = () => {
-    inputRef.current?.click();
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) return;
-    setFile(e.target.files[0]);
-    setError("");
-    setSuccess("");
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (!e.dataTransfer.files.length) return;
-    setFile(e.dataTransfer.files[0]);
-    setError("");
-    setSuccess("");
-  };
-
-  const upload = async () => {
-    if (!title.trim()) {
-      setError("Title is required.");
-      return;
+  const toggleImage = (id: string) => {
+    if (selected.includes(id)) {
+      setSelected(selected.filter((item) => item !== id));
+    } else {
+      setSelected([...selected, id]);
     }
+  };  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        setLoading(true);
 
-    if (!file) {
-      setError("Choose a file.");
-      return;
-    }
+        const res = await api.get("/files/images");
 
-    try {
-      setLoading(true);
-      setError("");
-      setSuccess("");
+        setImages(res.data.files || []);
+      } catch (err: any) {
+        setError(err?.response?.data?.message || "Unable to load images.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("description", description);
-      formData.append("file", file);
+    fetchImages();
+  }, []);
 
-      await api.post("/files/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        onUploadProgress: (e) => {
-          if (!e.total) return;
-          setProgress(Math.round((e.loaded * 100) / e.total));
-        },
-      });
-
-      setSuccess("File uploaded successfully.");
-
-      setTimeout(() => {
-        navigate("/files");
-      }, 1000);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Upload failed.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const filteredImages = images.filter((img) =>
+    img.filename.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <main
-      style={{ ...sans, background: PAPER, color: INK }}
+      style={{
+        ...sans,
+        background: PAPER,
+        color: INK,
+      }}
       className="relative min-h-screen"
     >
-      <link
-        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
-        rel="stylesheet"
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={gridBg}
       />
-
-      <div className="pointer-events-none absolute inset-0" style={gridBg} />
 
       <header
         className="sticky top-0 z-50 border-b"
@@ -113,139 +98,248 @@ const Upload = () => {
         }}
       >
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
+
           <Link
-            to="/dashboard"
+            to="/pdf"
             style={mono}
             className="flex items-center gap-2 text-xs uppercase tracking-wider text-sky-400 hover:underline"
           >
             <ArrowLeft size={16} />
-            Return to Dashboard
+            Return to PDF Dashboard
           </Link>
 
-          <h1 style={mono} className="text-xl font-bold tracking-tight">
-            FILE_INGESTION
+          <h1
+            style={mono}
+            className="text-xl font-bold tracking-tight"
+          >
+            CREATE_PDF
           </h1>
 
           <div />
+
         </div>
       </header>
 
-      <section className="relative mx-auto max-w-3xl px-6 py-14">
+      <section className="relative mx-auto max-w-5xl px-6 py-14">
+
         <div className="flex items-center gap-3">
-          <Terminal size={20} style={{ color: STAMP }} />
-          <span style={mono} className="text-xs uppercase tracking-[0.2em]">
-            System Workspace // Ingest ID #02
+          <Terminal
+            size={20}
+            style={{ color: STAMP }}
+          />
+
+          <span
+            style={mono}
+            className="text-xs uppercase tracking-[0.2em]"
+          >
+            PDF SYSTEM // BUILD DOCUMENT
           </span>
         </div>
 
-        <h1 style={mono} className="mt-4 text-4xl font-bold tracking-tight">
-          Upload File
+        <h1
+          style={mono}
+          className="mt-4 text-4xl font-bold tracking-tight"
+        >
+          Create PDF
         </h1>
 
-        <p className="mt-3 text-base" style={{ color: `${INK}b3` }}>
-          Stream local document assets into secure system repository.
-        </p>
-
-        <div
-          className="mt-10 space-y-6 border-2 p-8 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)]"
-          style={{ background: CARD_BG, borderColor: LINE }}
+        <p
+          className="mt-3 text-base"
+          style={{ color: `${INK}b3` }}
         >
-          <div>
-            <label
-              style={mono}
-              className="mb-2 block text-xs uppercase tracking-wider text-slate-400"
-            >
-              Document Title *
-            </label>
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. System Architecture Docs"
-              style={{ ...mono, background: PAPER, borderColor: LINE, color: INK }}
-              className="w-full border p-3 text-sm outline-none transition focus:border-sky-400"
-            />
-          </div>
+          Select uploaded images and merge them
+          into one PDF document.
+        </p>        <div
+          className="mt-10 space-y-6 border-2 p-8 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)]"
+          style={{
+            background: CARD_BG,
+            borderColor: LINE,
+          }}
+        >
+
 
           <div>
             <label
               style={mono}
               className="mb-2 block text-xs uppercase tracking-wider text-slate-400"
             >
-              Description / Metadata
+              Search Uploaded Images
             </label>
-            <textarea
-              rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Provide context or instructions for this file..."
-              style={{ ...mono, background: PAPER, borderColor: LINE, color: INK }}
-              className="w-full border p-3 text-sm outline-none transition focus:border-sky-400"
-            />
+
+            <div className="relative">
+              <Search
+                size={18}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
+              />
+
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search images..."
+                style={{
+                  ...mono,
+                  background: PAPER,
+                  borderColor: LINE,
+                  color: INK,
+                }}
+                className="w-full border py-3 pl-10 pr-4 outline-none focus:border-sky-400"
+              />
+            </div>
           </div>
+
+       
+
+          <div>
+            <h2
+              style={mono}
+              className="mb-4 text-lg font-bold"
+            >
+              Uploaded Images
+            </h2>
+
+            <div
+              className="max-h-100 overflow-y-auto border"
+              style={{
+                background: PAPER,
+                borderColor: LINE,
+              }}
+            >
+              {filteredImages.length === 0 ? (
+                <div
+                  className="p-10 text-center text-slate-500"
+                  style={mono}
+                >
+                  No uploaded images found.
+                </div>
+              ) : (
+                filteredImages.map((img) => (
+                  <div
+                    key={img.id}
+                    className="flex items-center justify-between border-b p-4 hover:bg-zinc-900"
+                    style={{
+                      borderColor: LINE,
+                    }}
+                  >
+                    <div className="flex items-center gap-4">
+
+                      <input
+                        type="checkbox"
+                        checked={selected.includes(img.id)}
+                        onChange={() => toggleImage(img.id)}
+                        className="h-4 w-4 accent-sky-500"
+                      />
+
+                      <Image
+                        size={22}
+                        style={{
+                          color: BLUE,
+                        }}
+                      />
+
+                      <div>
+
+                        <h3
+                          style={mono}
+                          className="font-semibold"
+                        >
+                          {img.filename}
+                        </h3>
+
+                        <p
+                          style={mono}
+                          className="text-xs text-slate-500"
+                        >
+                          {(img.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+
+                      </div>
+
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>          {/* Selected Summary */}
 
           <div
-            onClick={chooseFile}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={handleDrop}
-            style={{ background: PAPER, borderColor: LINE }}
-            className="cursor-pointer border-2 border-dashed p-10 text-center transition hover:border-sky-400"
+            className="border p-5"
+            style={{
+              background: PAPER,
+              borderColor: LINE,
+            }}
           >
-            <UploadCloud size={50} className="mx-auto" style={{ color: BLUE }} />
-            <h2 style={mono} className="mt-4 text-lg font-bold">
-              Drag & Drop file payload
-            </h2>
-            <p style={mono} className="mt-1 text-xs text-slate-400">
-              or click to browse local file system
-            </p>
-            <input
-              hidden
-              ref={inputRef}
-              type="file"
-              onChange={handleChange}
-            />
+            <div className="flex items-center gap-3">
+              <FileText
+                size={22}
+                style={{ color: BLUE }}
+              />
+
+              <div>
+                <h2
+                  style={mono}
+                  className="font-bold"
+                >
+                  Selected Images
+                </h2>
+
+                <p
+                  style={mono}
+                  className="text-xs text-slate-500"
+                >
+                  {selected.length} image(s) selected
+                </p>
+              </div>
+            </div>
+
+            {selected.length > 0 && (
+              <div className="mt-5 space-y-2">
+                {selected.map((id, index) => {
+                  const img = images.find((i) => i.id === id);
+
+                  return (
+                    <div
+                      key={id}
+                      className="flex items-center justify-between border p-3"
+                      style={{
+                        borderColor: LINE,
+                      }}
+                    >
+                      <span
+                        style={mono}
+                        className="text-sm"
+                      >
+                        {index + 1}. {img?.filename}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
-          {file && (
-            <div
-              className="border p-4"
-              style={{ background: PAPER, borderColor: LINE }}
-            >
-              <div className="flex items-center gap-4">
-                <div
-                  className="flex h-10 w-10 items-center justify-center border"
-                  style={{ borderColor: LINE }}
-                >
-                  <FileText size={20} style={{ color: BLUE }} />
-                </div>
-                <div className="flex-1">
-                  <h3 style={mono} className="text-sm font-semibold break-all">
-                    {file.name}
-                  </h3>
-                  <p style={mono} className="mt-1 text-xs text-slate-500">
-                    {(file.size / 1024 / 1024).toFixed(2)} MB
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* PDF Name */}
 
-          {progress > 0 && (
-            <div style={mono}>
-              <div className="mb-2 flex justify-between text-xs">
-                <span>UPLOADING_STREAM...</span>
-                <span>{progress}%</span>
-              </div>
-              <div
-                className="h-2 w-full overflow-hidden border"
-                style={{ background: PAPER, borderColor: LINE }}
-              >
-                <div
-                  style={{ width: `${progress}%`, background: BLUE }}
-                  className="h-full transition-all duration-300"
-                />
-              </div>
-            </div>
-          )}
+          <div>
+            <label
+              style={mono}
+              className="mb-2 block text-xs uppercase tracking-wider text-slate-400"
+            >
+              PDF Name
+            </label>
+
+            <input
+              value={pdfName}
+              onChange={(e) => setPdfName(e.target.value)}
+              placeholder="Project-Document.pdf"
+              style={{
+                ...mono,
+                background: PAPER,
+                borderColor: LINE,
+                color: INK,
+              }}
+              className="w-full border p-3 outline-none focus:border-sky-400"
+            />
+          </div>
 
           {error && (
             <div
@@ -266,17 +360,19 @@ const Upload = () => {
           )}
 
           <button
-            onClick={upload}
-            disabled={loading}
-            style={{ ...mono, borderColor: LINE }}
-            className="w-full border bg-sky-500/10 py-4 text-sm font-bold uppercase tracking-wider text-sky-400 transition hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+            style={{
+              ...mono,
+              borderColor: LINE,
+            }}
+            className="w-full border bg-sky-500/10 py-4 text-sm font-bold uppercase tracking-wider text-sky-400 transition hover:bg-sky-500/20"
           >
-            {loading ? "TRANSMITTING..." : "EXECUTE_UPLOAD"}
+            {loading ? "GENERATING PDF..." : "CREATE PDF"}
           </button>
         </div>
+
       </section>
     </main>
   );
 };
 
-export default Upload;
+export default CreatePdf;
