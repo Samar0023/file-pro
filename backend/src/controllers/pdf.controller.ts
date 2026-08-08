@@ -7,6 +7,7 @@ import { prisma } from "../config/prisma";
 import cloudinary from "../config/cloudinary";
 import { pdfQueue } from "../queue/queue";
 import { date } from "zod";
+import { Job } from "bullmq";
 type FileParams = {
     id: string
 }
@@ -15,51 +16,32 @@ type FileParams = {
 export const createPdfx = expressAsyncHandler(async (req: Request<FileParams>, res: Response) => {
     const { id } = req.params;
     const { fileIds } = req.body;
-    const files = await prisma.file.findMany({
-        where: {
-            id: {
-                in: fileIds,
-                
-            },
-            userId:req.user.id
+  
+
+    const dbJob = await prisma.processingJob.create({
+        data:{
+             userId:req.user.id,
+        type:"create-pdf",
+        status:"PENDING"
         }
     })
 
-    if (files.length === 0) {
-        res.status(404).json({
-            success: false,
-            message: "no files found"
-        })
-        return
-    }
-
-    const pdfbuffer = await createPdf(files)
-
-
-
-    const cloudinaryResult = await uploadcloudinary(
-        pdfbuffer,
-        pdfname
+    const job = await pdfQueue.add(
+        "create-pdf",
+        {
+            fileIds,
+            userId:req.user.id,
+            dbJobId:dbJob.id
+        }
     )
 
-    const processedFile = await prisma.file.create({
-        data: {
-            title: "Generated Pdf",
-            description: "PDF created from images",
-            OriginalName: pdfname,
-            fileName: pdfname,
-            fileUrl: cloudinaryResult.secure_url,
-            publicId: cloudinaryResult.public_id,
-            userId:req.user.id,
-            size: pdfbuffer.length,
-            mimeType: "application/pdf"
-        }
-    })
 
+
+   
     res.status(201).json({
         success: true,
         message: "PDF created Successfully",
-        data:processedFile
+        jobId:job.id
     })
     return
 })
@@ -98,47 +80,32 @@ export const mergePdfx = expressAsyncHandler(async (req: Request<FileParams>, re
 })
 
 export const splitPdfx = expressAsyncHandler(async (req: Request<FileParams>, res: Response) => {
-    const { id } = req.params
+    const { id , } = req.params
+    const {fileId} = req.body
 
 
-    const file = await prisma.file.findFirst({
-        where: {
-            id,
+    
+
+   const dbJob = await prisma.processingJob.create({
+        data:{
              userId:req.user.id,
+        type:"split-pdf",
+        status:"PENDING"
         }
     })
-    if (!file) {
-        res.status(404).json({
-            success: false,
-            message: "no files found"
-        })
-        return
-    }
 
-    const pdfbuffer = await splitPdf(file)
-
-for(let i = 0 ; i < pdfbuffer.length ; i++){
-    const cloudinaryResult = await uploadcloudinary(
-        pdfbuffer[i],
-        `split-page-${i+1}.pdf`
-    )
-
-     await prisma.file.create({
-        data:{
-            title:`Split page ${i+1}`,
-            description:"Split PDF page",
-
-            OriginalName:`split-page-${i+1}.pdf`,
-            fileName:`split-page-${i+1}.pdf`,
-
-            fileUrl:cloudinaryResult.secure_url,
-            publicId:cloudinaryResult.public_id,
+    const job = await pdfQueue.add(
+        "split-pdf",
+        {
+            fileId,
             userId:req.user.id,
-            size:pdfbuffer[i].length,
-            mimeType:"application/pdf"
+            dbJobId:dbJob.id
         }
-          });
-}
+    )
+  
+
+
+
  
     
  

@@ -26,6 +26,6 @@ app.get("/" , (req,res) =>{
       res.json({success:true , message:"app Running on Backend"});
 })
 
-app.use(errorHandler)
+
 
 export default app;

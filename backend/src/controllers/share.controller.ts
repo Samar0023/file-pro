@@ -10,10 +10,12 @@ import crypto from "crypto"
 export const sharefile = expressAsyncHandler(async(req:Request<FileParams> , res:Response)=>{
       const {id} = req.params;
 
-      const file = await prisma.file.findUnique({
+      const file = await prisma.file.findFirst({
           where:{
             id,
+             userId:req.user.id
           }
+         
       })
 
        if(!file){
