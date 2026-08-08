@@ -5,6 +5,8 @@ import { createPdf, mergePdf, splitPdf } from "../services/pdf.services";
 import { pdfname } from "../utils/pdf.util";
 import { prisma } from "../config/prisma";
 import cloudinary from "../config/cloudinary";
+import { pdfQueue } from "../queue/queue";
+import { date } from "zod";
 type FileParams = {
     id: string
 }
@@ -65,51 +67,28 @@ export const mergePdfx = expressAsyncHandler(async (req: Request<FileParams>, re
     const { id } = req.params
     const { fileIds } = req.body
 
-    const file = await prisma.file.findMany({
-        where: {
-            id: {
-                in: fileIds,
-               
-            },
+    const dbJob = await prisma.processingJob.create({
+        data:{
              userId:req.user.id,
+        type:"merge-pdf",
+        status:"PENDING"
         }
     })
-    if (file.length === 0) {
-        res.status(404).json({
-            success: false,
-            message: "no files found"
-        })
-        return
-    }
 
-    const pdfbuffer = await mergePdf(file)
-
-
-
-
-    const cloudinaryResult = await uploadcloudinary(
-        pdfbuffer,
-        pdfname
+    const job = await pdfQueue.add(
+        "merge-pdf",
+        {
+            fileIds,
+            userId:req.user.id,
+            dbJobId:dbJob.id
+        }
     )
 
-    const processedFile = await prisma.file.create({
-        data: {
-            title: "Generated Pdf",
-            description: "PDF created from images",
-            OriginalName: pdfname,
-            fileName: pdfname,
-            fileUrl: cloudinaryResult.secure_url,
-            userId:req.user.id,
-            publicId: cloudinaryResult.public_id,
-            size: pdfbuffer.length,
-            mimeType: "application/pdf"
-        }
-    })
-
+    
     res.status(201).json({
         success: true,
         message: "PDF merged Successfully",
-        data:processedFile
+         jobId:job.id
     })
     return
 
