@@ -71,11 +71,11 @@ const Login = () => {
         rel="stylesheet"
       />
 
-      {/* Technical Grid Background */}
+    
       <div className="pointer-events-none absolute inset-0" style={gridBg} />
 
       <div className="relative w-full max-w-md">
-        {/* Header / Brand */}
+      
         <div className="mb-8 text-center">
           <Link
             to="/"
@@ -94,12 +94,12 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Card Box */}
+     
         <div
           className="relative border-2 p-8 shadow-[6px_6px_0_0_rgba(0,0,0,0.6)]"
           style={{ background: CARD_BG, borderColor: LINE }}
         >
-          {/* Decorative Corner Notch */}
+          
           <div
             className="absolute -top-1 -right-1 h-3 w-3 border-r-2 border-t-2"
             style={{ borderColor: STAMP }}

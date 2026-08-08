@@ -9,11 +9,12 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import api from "../../api/axios";
 
 interface FileData {
-  _id: string;
+  id: string;
   title: string;
   description: string;
-  originalname: string;
-  filename: string;
+  OriginalName: string;
+  fileName: string;
+  fileUrl: string;
   size: number;
   createdAt: string;
 }
@@ -40,13 +41,6 @@ const FileDetails = () => {
   useEffect(() => {
     getFile();
   }, []);
-
-  const download = () => {
-    window.open(
-      `http://localhost:3000/api/files/download/${id}`,
-      "_blank"
-    );
-  };
 
   const deleteFile = async () => {
     await api.post(`/files/delete/${id}`);
@@ -103,7 +97,7 @@ const FileDetails = () => {
               </h1>
 
               <p className="mt-2 text-zinc-400">
-                {file.originalname}
+                {file.OriginalName}
               </p>
 
             </div>
@@ -153,7 +147,7 @@ const FileDetails = () => {
                   <span>Filename</span>
 
                   <span className="max-w-45 truncate">
-                    {file.originalname}
+                    {file.OriginalName}
                   </span>
                 </div>
 
@@ -165,13 +159,15 @@ const FileDetails = () => {
 
           <div className="mt-10 flex flex-wrap gap-4">
 
-            <button
-              onClick={download}
+            <a
+              href={file.fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 font-semibold transition hover:bg-indigo-500"
             >
               <Download size={18} />
               Download
-            </button>
+            </a>
 
             <button
               onClick={deleteFile}

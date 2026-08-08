@@ -33,6 +33,7 @@ export default function CreatePdf() {
   const [fetching, setFetching] = useState(true);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [createdFile, setCreatedFile] = useState<FileItem | null>(null);
 
   useEffect(() => {
     getFiles();
@@ -73,16 +74,26 @@ export default function CreatePdf() {
       setError("");
       setMessage("");
 
-      await api.post("/pdf/create-pdf", {
+      const res = await api.post("/pdf/create-pdf", {
         fileIds: selected,
       });
 
-      setMessage("PDF created successfully!");
-      setSelected([]);
+      if (res.data.success && res.data.data) {
+        setCreatedFile(res.data.data);
+        setMessage("PDF created successfully!");
+        setSelected([]);
 
-      setTimeout(() => {
-        navigate("/files");
-      }, 1500);
+        // Redirect to file details page after showing success message
+        setTimeout(() => {
+          navigate(`/files/${res.data.data.id}`);
+        }, 1500);
+      } else {
+        setMessage("PDF created successfully!");
+        setSelected([]);
+        setTimeout(() => {
+          navigate("/files");
+        }, 1500);
+      }
     } catch (err: any) {
       setError(err?.response?.data?.message || "Failed to create PDF");
     } finally {
@@ -240,6 +251,24 @@ export default function CreatePdf() {
             className="mt-6 border border-emerald-500/40 bg-emerald-500/10 p-4 text-xs text-emerald-400"
           >
             [SUCCESS] {message}
+            {createdFile && (
+              <div className="mt-4">
+                <a
+                  href={createdFile.fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded text-white font-semibold"
+                >
+                  Download PDF
+                </a>
+                <Link
+                  to={`/files/${createdFile.id}`}
+                  className="inline-block mt-2 ml-2 px-4 py-2 bg-sky-600 hover:bg-sky-500 rounded text-white font-semibold"
+                >
+                  View in Files
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </section>

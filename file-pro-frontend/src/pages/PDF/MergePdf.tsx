@@ -33,6 +33,7 @@ const MergePdf = () => {
   const [processing, setProcessing] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [mergedFile, setMergedFile] = useState<any>(null);
 
   const getFiles = async () => {
     try {
@@ -71,12 +72,18 @@ const MergePdf = () => {
       setError("");
       setMessage("");
 
-      await api.post("/pdf/merge-pdf", {
+      const res = await api.post("/pdf/merge-pdf", {
         fileIds: selected,
       });
 
-      setMessage("PDFs merged successfully.");
-      setSelected([]);
+      if (res.data.success) {
+        setMessage("PDFs merged successfully.");
+        setMergedFile(res.data.data || res.data.uploaded);
+        setSelected([]);
+      } else {
+        setMessage("PDFs merged successfully.");
+        setSelected([]);
+      }
     } catch (err: any) {
       setError(err?.response?.data?.message || "Merge failed.");
     } finally {
@@ -207,6 +214,24 @@ const MergePdf = () => {
               className="border border-emerald-500/40 bg-emerald-500/10 p-4 text-xs text-emerald-400"
             >
               [SUCCESS] {message}
+              {mergedFile && (
+                <div className="mt-4">
+                  <a
+                    href={mergedFile.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block mt-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded text-white font-semibold"
+                  >
+                    Download Merged PDF
+                  </a>
+                  <Link
+                    to={`/files/${mergedFile.id}`}
+                    className="inline-block mt-2 ml-2 px-4 py-2 bg-sky-600 hover:bg-sky-500 rounded text-white font-semibold"
+                  >
+                    View in Files
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 

@@ -1,7 +1,6 @@
 import {
   Merge,
   FileOutput,
-  Minimize2,
   Image,
   ArrowLeft,
   Terminal,
@@ -39,13 +38,7 @@ const PdfDashboard = () => {
       description: "Extract designated page blocks into separate output files.",
       icon: <FileOutput size={24} style={{ color: BLUE }} />,
     },
-    {
-      to: "/pdf/compress",
-      code: "CMP",
-      title: "Compress PDF",
-      description: "Optimize PDF filesize while preserving visual fidelity.",
-      icon: <Minimize2 size={24} style={{ color: BLUE }} />,
-    },
+    
     {
       to: "/pdf/create",
       code: "GEN",

@@ -33,6 +33,7 @@ const SplitPdf = () => {
   const [processing, setProcessing] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [splitFiles, setSplitFiles] = useState<any[]>([]);
 
   const getFiles = async () => {
     try {
@@ -62,10 +63,17 @@ const SplitPdf = () => {
       setProcessing(true);
       setError("");
       setMessage("");
+      setSplitFiles([]);
 
       const res = await api.post(`/pdf/split-pdf/${selected}`);
 
-      setMessage(res.data.message);
+      setMessage(res.data.message || "PDF split successfully!");
+      
+      // The split endpoint might return the split files or just a success message
+      if (res.data.files || res.data.data) {
+        setSplitFiles(res.data.files || res.data.data);
+      }
+      
       getFiles();
     } catch (err: any) {
       setError(
@@ -200,6 +208,31 @@ const SplitPdf = () => {
               className="border border-emerald-500/40 bg-emerald-500/10 p-4 text-xs text-emerald-400"
             >
               [SUCCESS] {message}
+              {splitFiles.length > 0 && (
+                <div className="mt-4">
+                  <p className="mb-2">Split files created:</p>
+                  <div className="space-y-2">
+                    {splitFiles.map((file) => (
+                      <div key={file.id} className="flex items-center gap-2">
+                        <a
+                          href={file.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block px-3 py-1 bg-emerald-600 hover:bg-emerald-500 rounded text-white font-semibold text-xs"
+                        >
+                          Download {file.title}
+                        </a>
+                        <Link
+                          to={`/files/${file.id}`}
+                          className="inline-block px-3 py-1 bg-sky-600 hover:bg-sky-500 rounded text-white font-semibold text-xs"
+                        >
+                          View
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
