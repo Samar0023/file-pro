@@ -20,7 +20,8 @@ export const createPdfx = expressAsyncHandler(async (req: Request<FileParams>, r
             id: {
                 in: fileIds,
                 
-            }
+            },
+            userId:req.user.id
         }
     })
 

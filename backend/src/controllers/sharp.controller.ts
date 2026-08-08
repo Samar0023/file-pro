@@ -134,6 +134,7 @@ export const  compositeImagex  = expressAsyncHandler(async(req:Request<FileParam
       const compfile = await prisma.file.findUnique({
         where:{
             id:oid,
+             userId:req.user.id,
         }
     })
 

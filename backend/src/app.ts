@@ -1,6 +1,7 @@
 import express  from "express";
 import cors from "cors"
 import cookieParser from "cookie-parser";
+import { errorHandler } from "./middleware/error.middleware";
 
 const app = express();
 app.use(cors({
@@ -24,5 +25,7 @@ app.get("/api/debug-cookie", (req, res) => {
 app.get("/" , (req,res) =>{
       res.json({success:true , message:"app Running on Backend"});
 })
+
+app.use(errorHandler)
 
 export default app;
