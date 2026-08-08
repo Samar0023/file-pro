@@ -3,8 +3,7 @@ import {
   Upload,
   FileText,
   Image,
-  Share2,
-  User,
+
   LogOut,
   Files,
   Terminal,
