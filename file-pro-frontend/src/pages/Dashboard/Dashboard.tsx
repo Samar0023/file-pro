@@ -65,20 +65,7 @@ const Dashboard = () => {
       description: "Resize, crop, and optimize bitmap visuals.",
       icon: <Image size={24} style={{ color: BLUE }} />,
     },
-    {
-      to: "/share",
-      code: "SHR",
-      title: "Share Files",
-      description: "Generate secured share links with TTL.",
-      icon: <Share2 size={24} style={{ color: BLUE }} />,
-    },
-    {
-      to: "/profile",
-      code: "USR",
-      title: "Profile",
-      description: "Configure system credentials and access keys.",
-      icon: <User size={24} style={{ color: BLUE }} />,
-    },
+   
   ];
 
   return (
@@ -93,7 +80,7 @@ const Dashboard = () => {
 
       <div className="pointer-events-none absolute inset-0" style={gridBg} />
 
-      {/* Top Bar */}
+    
       <header
         className="sticky top-0 z-50 border-b"
         style={{ borderColor: LINE, background: `${PAPER}e6`, backdropFilter: "blur(8px)" }}
@@ -143,7 +130,7 @@ const Dashboard = () => {
           Active Session: <span style={mono} className="text-sky-400">{user?.username}</span>
         </p>
 
-        {/* Action Grid */}
+
         <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {navItems.map((item) => (
             <Link
