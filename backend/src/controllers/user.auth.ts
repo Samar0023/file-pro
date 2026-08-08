@@ -2,6 +2,7 @@ import { prisma } from "../config/prisma"
 import { Response, Request } from "express";
 import bcrypt from "bcrypt";
 import { uservalidations, RegisterBody } from "../validations/user.vali";
+import { loginvalidations ,  RegisterBodyx } from "../validations/login.vali";
 import jwt from "jsonwebtoken"
 
 
@@ -84,7 +85,7 @@ export const signup = async (req: Request<{}, {}, RegisterBody>, res: Response) 
 export const login = async (req: Request, res: Response) => {
     try {
 
-        const result = uservalidations.safeParse(req.body);
+        const result = loginvalidations.safeParse(req.body);
 
         if (!result.success) {
             return res.status(400).json({

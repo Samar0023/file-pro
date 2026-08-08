@@ -19,3 +19,5 @@ export const uservalidations = z.object({
 })
 
 export type RegisterBody = z.infer<typeof uservalidations>
+
+
