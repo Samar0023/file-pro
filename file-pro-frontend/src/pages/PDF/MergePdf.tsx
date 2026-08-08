@@ -7,8 +7,8 @@ interface FileData {
   id: string;
   title: string;
   description: string;
-  originalname: string;
-  mimetype: string;
+  OriginalName: string;
+  mimeType: string;
 }
 
 const mono = { fontFamily: "'IBM Plex Mono', monospace" };
@@ -39,7 +39,7 @@ const MergePdf = () => {
       const res = await api.get("/files/allfiles");
 
       const pdfs = res.data.files.filter(
-        (file: FileData) => file.mimetype === "application/pdf"
+        (file: FileData) => file.mimeType === "application/pdf"
       );
 
       setFiles(pdfs);
@@ -185,7 +185,7 @@ const MergePdf = () => {
                   <p className="mt-1 text-sm text-slate-400">{file.description}</p>
 
                   <p style={mono} className="mt-3 text-xs text-slate-500">
-                    SRC: {file.originalname}
+                    SRC: {file.OriginalName}
                   </p>
                 </div>
               </label>

@@ -54,7 +54,7 @@ const AllImages = () => {
 
   const deleteImage = async (id: string) => {
     try {
-      await api.delete(`/files/delete/${id}`);
+      await api.post(`/files/delete/${id}`);
       getImages();
     } catch (err) {
       console.log(err);

@@ -56,14 +56,14 @@ const CompositeImage = () => {
       setMessage("");
 
       // Calls backend endpoint passing baseId and overlayId
-      const res = await api.post(`/files/compose/${baseId}/${overlayId}`, {
+      const res = await api.post(`/images/watermark/${baseId}/${overlayId}`, {
         gravity,
       });
 
       setMessage(res.data.message || "Composition created successfully!");
 
       setTimeout(() => {
-        navigate("/allimages");
+        navigate("/images/all");
       }, 1500);
     } catch (err: any) {
       setError(
