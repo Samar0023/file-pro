@@ -1,4 +1,5 @@
 import app from "./app";
+import "./workers/pdf.worker"
 const PORT = process.env.PORT || 3000;
 import uploadRoute from "./route/file.route"
 import sharpRoutes from "./route/sharp.route"
