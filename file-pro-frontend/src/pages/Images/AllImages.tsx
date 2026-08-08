@@ -52,14 +52,7 @@ const AllImages = () => {
     }
   };
 
-  const deleteImage = async (id: string) => {
-    try {
-      await api.post(`/files/delete/${id}`);
-      getImages();
-    } catch (err) {
-      console.log(err);
-    }
-  };
+ 
 
   useEffect(() => {
     getImages();
@@ -217,21 +210,9 @@ const AllImages = () => {
                       Grayscale
                     </Link>
 
-                    <Link
-                      to={`/images/compress/${image.id}`}
-                      style={{ borderColor: LINE }}
-                      className="border bg-zinc-900 py-2.5 text-center text-xs font-bold uppercase tracking-wider text-slate-200 transition hover:border-sky-400 hover:text-sky-400"
-                    >
-                      Compress
-                    </Link>
+                   
 
-                    <Link
-                      to={`/images/convert/${image.id}`}
-                      style={{ borderColor: LINE }}
-                      className="border bg-zinc-900 py-2.5 text-center text-xs font-bold uppercase tracking-wider text-slate-200 transition hover:border-sky-400 hover:text-sky-400"
-                    >
-                      Convert
-                    </Link>
+                   
 
                     <a
                       href={image.fileUrl}
@@ -243,12 +224,7 @@ const AllImages = () => {
                       Download
                     </a>
 
-                    <button
-                      onClick={() => deleteImage(image.id)}
-                      className="col-span-2 border border-red-500/40 bg-red-500/10 py-2.5 text-xs font-bold uppercase tracking-wider text-red-400 transition hover:bg-red-500/20"
-                    >
-                      Delete Image
-                    </button>
+                   
                   </div>
                 </div>
               </div>
